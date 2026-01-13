@@ -1,0 +1,12 @@
+{
+  "name": "SmartOzzehir",
+  "version": 1,
+  "plugins": {
+    "pr-patrol": {
+      "name": "pr-patrol",
+      "version": "1.0.0",
+      "description": "Patrol your PRs for bot comments (CodeRabbit, Greptile, Copilot, Codex, Sentry) - batch validation with 7-gate workflow",
+      "path": "."
+    }
+  }
+}
