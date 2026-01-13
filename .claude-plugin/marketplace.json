@@ -15,7 +15,7 @@
         "name": "Mart",
         "email": "mart@smartozzehir.com"
       },
-      "source": ".",
+      "source": "./",
       "category": "development"
     }
   ]
