@@ -32,4 +32,4 @@ fi
   gh api "repos/$OWNER/$REPO/pulls/$PR/comments" --paginate &
   gh api "repos/$OWNER/$REPO/issues/$PR/comments" --paginate &
   wait
-} 2>/dev/null | jq -s -f "$JQ_FILE"
+} 2>/dev/null | jq -s -L "$SCRIPT_DIR" -f "$JQ_FILE"

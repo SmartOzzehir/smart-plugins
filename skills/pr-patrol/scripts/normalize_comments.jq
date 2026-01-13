@@ -4,18 +4,7 @@
 # Input: Combined JSON array from both PR comments endpoints
 # Output: Categorized comments with stats
 
-# Bots to IGNORE (not review bots)
-def is_ignored_bot:
-  . as $login |
-  ["vercel[bot]", "dependabot[bot]", "renovate[bot]", "github-actions[bot]"] |
-  any(. == $login);
-
-# Review bot detection
-def is_review_bot:
-  . as $login |
-  ($login | test("coderabbit|greptile|codex|sentry"; "i")) or
-  ($login == "Copilot") or
-  ($login == "chatgpt-codex-connector[bot]");
+include "bot-detection";
 
 # Sanitize control characters that crash jq
 def sanitize: gsub("[\\u0000-\\u001f]"; "");

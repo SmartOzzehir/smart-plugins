@@ -156,7 +156,6 @@ False positives explained:
 
 Reviewed by: {bot names}
 
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Example:**
@@ -173,5 +172,4 @@ False positives explained:
 
 Reviewed by: CodeRabbit, Greptile, Copilot
 
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```

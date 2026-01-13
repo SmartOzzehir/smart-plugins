@@ -35,19 +35,8 @@ SINCE=$(date -u -d "$SINCE" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "$SINCE")
   gh api "repos/$OWNER/$REPO/pulls/$PR/comments" --paginate &
   gh api "repos/$OWNER/$REPO/issues/$PR/comments" --paginate &
   wait
-} 2>/dev/null | jq -s --arg since "$SINCE" '
-# Ignored bots (not review bots)
-def is_ignored_bot:
-  . as $login |
-  ["vercel[bot]", "dependabot[bot]", "renovate[bot]", "github-actions[bot]"] |
-  any(. == $login);
-
-# Review bot detection
-def is_review_bot:
-  . as $login |
-  ($login | test("coderabbit|greptile|codex|sentry"; "i")) or
-  ($login == "Copilot") or
-  ($login == "chatgpt-codex-connector[bot]");
+} 2>/dev/null | jq -s -L "$SCRIPT_DIR" --arg since "$SINCE" '
+include "bot-detection";
 
 add |
 [.[] |

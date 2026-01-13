@@ -1,5 +1,4 @@
 ---
-name: update
 description: Update pr-patrol plugin to latest version from GitHub
 allowed-tools: Bash
 ---

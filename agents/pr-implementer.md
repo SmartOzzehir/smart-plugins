@@ -1,8 +1,19 @@
 ---
 name: pr-implementer
-description: Implements approved PR fixes with precision. Use after user approves a fix design from pr-fix-architect. Applies exact code changes and verifies correctness.
+description: |
+  Implements approved PR fixes with precision. Use after user approves a fix design from pr-fix-architect. Applies exact code changes and verifies correctness.
+
+  <example>
+  Context: Gate 3 of pr-patrol workflow - fix implementation phase
+  user: "Apply these approved fixes"
+  assistant: "I'll use pr-implementer to apply the changes precisely as designed."
+  <commentary>
+  This agent is spawned by pr-patrol skill during Gate 3 to implement approved fix designs.
+  </commentary>
+  </example>
+
 tools: ["Read", "Edit", "Write", "Grep", "Glob"]
-model: sonnet
+model: opus
 color: green
 ---
 

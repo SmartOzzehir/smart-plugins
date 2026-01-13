@@ -1,6 +1,6 @@
 ---
 name: pr-patrol
-description: This skill should be used when the user asks to "handle bot comments", "fix PR review feedback", "address CodeRabbit/Greptile/Copilot issues", "respond to review bot suggestions", "process automated review comments", or runs "/pr-patrol". Patrols your PR for bot comments (CodeRabbit, Greptile, Codex, Copilot, Sentry) with state tracking and batch processing through a 7-gate workflow.
+description: This skill should be used when the user asks to "handle bot comments", "fix PR review feedback", "address CodeRabbit/Greptile/Copilot issues", "respond to review bot suggestions", "process automated review comments", or runs "/pr-patrol". Patrols the PR for bot comments (CodeRabbit, Greptile, Codex, Copilot, Sentry) with state tracking and batch processing through a 7-gate workflow.
 allowed-tools: Bash, Read, Edit, Write, Grep, Glob, Task, AskUserQuestion
 ---
 

@@ -18,19 +18,8 @@ PR="${3:?Usage: $0 <owner> <repo> <pr>}"
   gh api "repos/$OWNER/$REPO/pulls/$PR/comments" --paginate &
   gh api "repos/$OWNER/$REPO/issues/$PR/comments" --paginate &
   wait
-} 2>/dev/null | jq -s '
-# Ignored bots
-def is_ignored_bot:
-  . as $login |
-  ["vercel[bot]", "dependabot[bot]", "renovate[bot]", "github-actions[bot]"] |
-  any(. == $login);
-
-# Review bot detection
-def is_review_bot:
-  . as $login |
-  ($login | test("coderabbit|greptile|codex|sentry"; "i")) or
-  ($login == "Copilot") or
-  ($login == "chatgpt-codex-connector[bot]");
+} 2>/dev/null | jq -s -L "$SCRIPT_DIR" '
+include "bot-detection";
 
 add |
 
@@ -39,18 +28,18 @@ add |
 [.[] | select(.user.type == "Bot" or (.user.login | is_review_bot)) | select(.in_reply_to_id == null)] as $bot_comments |
 [.[] | select(.user.type == "Bot" or (.user.login | is_review_bot) | not) | select(.in_reply_to_id)] as $user_replies |
 
-# Build replied set
-($user_replies | map(.in_reply_to_id) | unique) as $replied_ids |
+# Build replied set as object for O(1) lookup
+($user_replies | map({key: (.in_reply_to_id | tostring), value: true}) | add // {}) as $replied_set |
 
-# Categorize bot comments
+# Categorize bot comments using O(1) lookup
 {
-  replied: [$bot_comments[] | select([.id] | inside($replied_ids)) | {id, bot: .user.login, path: (.path // "issue-level")}],
-  pending: [$bot_comments[] | select(.user.login != "Copilot") | select([.id] | inside($replied_ids) | not) | {id, bot: .user.login, path: (.path // "issue-level")}],
+  replied: [$bot_comments[] | select($replied_set[.id | tostring]) | {id, bot: .user.login, path: (.path // "issue-level")}],
+  pending: [$bot_comments[] | select(.user.login != "Copilot") | select($replied_set[.id | tostring] | not) | {id, bot: .user.login, path: (.path // "issue-level")}],
   copilot_silent: [$bot_comments[] | select(.user.login == "Copilot") | {id, path: (.path // "issue-level")}],
   summary: {
     total_bot_comments: ($bot_comments | length),
-    replied_count: ([$bot_comments[] | select([.id] | inside($replied_ids))] | length),
-    pending_count: ([$bot_comments[] | select(.user.login != "Copilot") | select([.id] | inside($replied_ids) | not)] | length),
+    replied_count: ([$bot_comments[] | select($replied_set[.id | tostring])] | length),
+    pending_count: ([$bot_comments[] | select(.user.login != "Copilot") | select($replied_set[.id | tostring] | not)] | length),
     copilot_count: ([$bot_comments[] | select(.user.login == "Copilot")] | length)
   }
 }

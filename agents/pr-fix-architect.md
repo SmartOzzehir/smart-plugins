@@ -1,8 +1,19 @@
 ---
 name: pr-fix-architect
-description: Designs optimal fixes for validated PR issues. Use after pr-validator confirms an issue is real. Creates detailed fix specifications with code changes and trade-off analysis.
+description: |
+  Designs optimal fixes for validated PR issues. Use after bot-comment-validator confirms an issue is real. Creates detailed fix specifications with code changes and trade-off analysis.
+
+  <example>
+  Context: Gate 3 of pr-patrol workflow - fix planning phase
+  user: "Design fixes for these 3 validated issues"
+  assistant: "I'll use pr-fix-architect to create detailed fix specifications."
+  <commentary>
+  This agent is spawned by pr-patrol skill during Gate 3 to design fixes for validated issues.
+  </commentary>
+  </example>
+
 tools: ["Read", "Grep", "Glob"]
-model: sonnet
+model: opus
 color: orange
 ---
 
