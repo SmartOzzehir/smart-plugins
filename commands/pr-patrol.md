@@ -8,7 +8,7 @@ allowed-tools: Bash, Read, Edit, Write, Grep, Glob, Task, AskUserQuestion
 
 Process PR bot review comments through batch validation with state persistence.
 
-Load the `pr-patrol` skill for reference: bot-formats.md, templates.md
+Load the `pr-patrol` skill. **CRITICAL:** Before posting any replies, read `${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol/bot-formats.md` for bot-specific protocols (reactions vs replies).
 
 ---
 

@@ -130,12 +130,21 @@ SCRIPTS="${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol/scripts"
 
 ---
 
-## Reference Files
+## Reference Files Location
+
+```bash
+SKILL_ROOT="${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol"
+
+# Read these files with their FULL paths:
+"$SKILL_ROOT/phases/gate-{N}.md"    # Phase instructions
+"$SKILL_ROOT/bot-formats.md"        # Bot protocols (CRITICAL for Gate 5!)
+"$SKILL_ROOT/templates.md"          # Reply templates
+```
 
 | File | Purpose | When to Read |
 |------|---------|--------------|
 | `phases/gate-{N}.md` | Phase-specific instructions | Based on status |
-| `bot-formats.md` | Bot-specific protocols | Gate 5 (replies) |
+| `bot-formats.md` | Bot-specific protocols | **MUST READ before Gate 5** |
 | `templates.md` | Reply message templates | Gate 5 (replies) |
 
 ---

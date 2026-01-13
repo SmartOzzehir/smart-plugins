@@ -24,6 +24,7 @@ A Claude Code plugin for handling PR bot comments (CodeRabbit, Greptile, Copilot
 
 ## Prerequisites
 
+- **Linux only** — Scripts use GNU coreutils (macOS/Windows not supported)
 - [GitHub CLI](https://cli.github.com/) (`gh`) — authenticated
 - [jq](https://jqlang.github.io/jq/) — version 1.6+
 - Bash 4.0+
