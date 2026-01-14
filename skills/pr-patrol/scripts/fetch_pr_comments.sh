@@ -1,8 +1,6 @@
 #!/bin/bash
-# fetch_pr_comments.sh - Optimized parallel comment fetcher for pr-patrol skill
+# fetch_pr_comments.sh - Comment fetcher for pr-patrol skill
 # Usage: ./fetch_pr_comments.sh <owner> <repo> <pr_number>
-#
-# Performance: ~0.87s (parallel) vs ~1.7s (sequential) = 50% faster
 #
 # Returns JSON with:
 #   - bot_comments: Original bot comments (in_reply_to_id == null)
@@ -10,8 +8,12 @@
 #   - bot_responses: Bot responses to user replies
 #
 # Uses external jq file to avoid shell escaping issues
+#
+# NOTE: Uses sequential fetch to avoid stdout interleaving that corrupts JSON
+# when parallel processes write simultaneously. The ~0.8s overhead is acceptable
+# for correctness.
 
-set -e
+set -euo pipefail
 
 OWNER="${1:?Usage: $0 <owner> <repo> <pr_number>}"
 REPO="${2:?Usage: $0 <owner> <repo> <pr_number>}"
@@ -27,9 +29,24 @@ if [[ ! -f "$JQ_FILE" ]]; then
   exit 1
 fi
 
-# Parallel fetch from both endpoints
+# Sequential fetch from both endpoints
+# IMPORTANT: Do NOT use parallel { cmd & cmd & wait } pattern here!
+# Background processes can interleave stdout bytes, corrupting JSON.
+
+# Fetch PR review comments (line-level)
+PR_COMMENTS=$(gh api "repos/$OWNER/$REPO/pulls/$PR/comments" --paginate 2>&1) || {
+  echo "Error fetching PR comments: $PR_COMMENTS" >&2
+  exit 1
+}
+
+# Fetch issue comments (conversation-level)
+ISSUE_COMMENTS=$(gh api "repos/$OWNER/$REPO/issues/$PR/comments" --paginate 2>&1) || {
+  echo "Error fetching issue comments: $ISSUE_COMMENTS" >&2
+  exit 1
+}
+
+# Combine and normalize
 {
-  gh api "repos/$OWNER/$REPO/pulls/$PR/comments" --paginate &
-  gh api "repos/$OWNER/$REPO/issues/$PR/comments" --paginate &
-  wait
-} 2>/dev/null | jq -s -L "$SCRIPT_DIR" -f "$JQ_FILE"
+  echo "$PR_COMMENTS"
+  echo "$ISSUE_COMMENTS"
+} | jq -s -L "$SCRIPT_DIR" -f "$JQ_FILE"
