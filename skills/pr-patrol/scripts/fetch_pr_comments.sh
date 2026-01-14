@@ -13,7 +13,7 @@
 # when parallel processes write simultaneously. The ~0.8s overhead is acceptable
 # for correctness.
 
-set -e
+set -euo pipefail
 
 OWNER="${1:?Usage: $0 <owner> <repo> <pr_number>}"
 REPO="${2:?Usage: $0 <owner> <repo> <pr_number>}"
@@ -32,8 +32,21 @@ fi
 # Sequential fetch from both endpoints
 # IMPORTANT: Do NOT use parallel { cmd & cmd & wait } pattern here!
 # Background processes can interleave stdout bytes, corrupting JSON.
-# See: https://github.com/SmartOzzehir/pr-patrol/issues/XX
+
+# Fetch PR review comments (line-level)
+PR_COMMENTS=$(gh api "repos/$OWNER/$REPO/pulls/$PR/comments" --paginate 2>&1) || {
+  echo "Error fetching PR comments: $PR_COMMENTS" >&2
+  exit 1
+}
+
+# Fetch issue comments (conversation-level)
+ISSUE_COMMENTS=$(gh api "repos/$OWNER/$REPO/issues/$PR/comments" --paginate 2>&1) || {
+  echo "Error fetching issue comments: $ISSUE_COMMENTS" >&2
+  exit 1
+}
+
+# Combine and normalize
 {
-  gh api "repos/$OWNER/$REPO/pulls/$PR/comments" --paginate
-  gh api "repos/$OWNER/$REPO/issues/$PR/comments" --paginate
-} 2>/dev/null | jq -s -L "$SCRIPT_DIR" -f "$JQ_FILE"
+  echo "$PR_COMMENTS"
+  echo "$ISSUE_COMMENTS"
+} | jq -s -L "$SCRIPT_DIR" -f "$JQ_FILE"
