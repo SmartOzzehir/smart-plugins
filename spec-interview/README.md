@@ -1,18 +1,17 @@
 # Spec Interview
 
-A Claude Code plugin for conducting structured requirements interviews to create specification documents.
+A Claude Code plugin that conducts structured requirements interviews to create error-free specification documents.
 
-## Features
+## What It Does
 
-- **Two Modes** - Enhance existing spec files or create new ones from ideas
-- **5-Stage Methodology** - Context, Functional, UI/UX, Edge Cases, Technical
-- **Non-Technical Friendly** - Explains concepts in plain language before asking technical questions
-- **Multi-Language** - English and Turkish support
+Interviews you about your feature idea or existing spec, asking as many questions as needed until there's 100% clarity. Then generates a comprehensive PRD (Product Requirements Document).
+
+**Core Philosophy:** No question limit. No skipped ambiguity. Loop until fully understood.
 
 ## Installation
 
 ```bash
-# Add the marketplace (if not already added)
+# Add the marketplace
 /plugin marketplace add SmartOzzehir/smart-plugins
 
 # Install the plugin
@@ -22,44 +21,57 @@ A Claude Code plugin for conducting structured requirements interviews to create
 ## Usage
 
 ```bash
-# Enhance existing spec document
+# From an idea
+/spec-interview "Add dark mode to the app"
+
+# From existing spec file
 /spec-interview docs/phases/phase-10.md
 
-# Create new spec from an idea
-/spec-interview "Add export button to dashboard"
-
-# Use Turkish language for interview
-/spec-interview docs/phases/phase-10.md TUR
+# With language preference
+/spec-interview "Add export feature" german
+/spec-interview "Yeni özellik ekle" turkish
 ```
+
+**Supported languages:** English (default), Turkish, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Japanese, Chinese, Korean, Arabic
 
 ## Interview Stages
 
-| Stage | Focus | Example Questions |
-|-------|-------|-------------------|
-| 1. Context | Who & Why | Who are the users? What problem does this solve? |
-| 2. Functional | What | Core actions, data requirements, success criteria |
-| 3. UI/UX | How it looks | Layout, loading states, error feedback |
-| 4. Edge Cases | What could go wrong | Permissions, missing data, concurrent edits |
-| 5. Technical | Implementation | Caching, real-time updates, validation timing |
+| Stage | Focus | What You'll Discuss |
+|-------|-------|---------------------|
+| 0. Calibration | Your background | Technical level, confirm understanding |
+| 1. Problem & Vision | Why build this? | Pain points, success metrics, business context |
+| 2. Stakeholders | Who's involved? | Primary users, secondary stakeholders, personas |
+| 3. Functional | What should it do? | CRUD actions, data fields, business logic, integrations |
+| 4. UI/UX | How should it look? | Layout, states (loading/empty/error), responsive design |
+| 5. Edge Cases | What could go wrong? | Permissions, concurrency, network issues, user errors |
+| 6. Non-Functional | Quality attributes | Performance, security, accessibility, compliance |
+| 7. Technical | How to build it? | Data storage, APIs, architecture (ELI5 for non-technical) |
+| 8. Prioritization | What comes first? | MVP scope, phasing, dependencies, timeline |
 
-## Output Format
+## Key Features
 
-The skill generates structured spec documents with:
+- **Adaptive Depth**: Adjusts explanations based on your technical level
+- **Expert Recommendations**: Agent suggests optimal choices on every question
+- **Ambiguity Handling**: Clarifies immediately, never assumes
+- **Comprehensive Output**: 13-section PRD with everything developers need
 
-- Overview and user stories
-- Functional requirements with checkboxes
-- Data requirements with types and validation
-- UI/UX specifications with state descriptions
-- Edge case handling strategies
-- Technical notes and open questions
-- Subphase breakdown (for complex features)
+## Output
 
-## Best Practices
+Generates a complete spec document with:
 
-- **Be specific** - Concrete examples help clarify requirements
-- **Think about edge cases** - The skill will prompt you, but volunteer scenarios
-- **Reference existing features** - "Like the export button on the reports page"
-- **Don't worry about technical terms** - The skill explains concepts before asking
+- Executive Summary & Success Metrics
+- Problem Statement (Current vs Desired State)
+- User Personas
+- User Stories (MoSCoW prioritization)
+- Functional Requirements Table
+- Data Requirements with Validation Rules
+- UI/UX Specifications with State Design
+- Edge Cases & Error Handling
+- Non-Functional Requirements (Performance, Security, Accessibility)
+- Technical Notes
+- Dependencies
+- Phasing (MVP → Future)
+- Open Questions
 
 ## License
 

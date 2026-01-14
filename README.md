@@ -1,154 +1,82 @@
 # Smart Plugins
 
-A collection of production-ready Claude Code plugins for enhanced development workflows.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![pr-patrol](https://img.shields.io/badge/pr--patrol-v1.4.1-blue)](./pr-patrol)
-[![spec-interview](https://img.shields.io/badge/spec--interview-v2.0.0-blue)](./spec-interview)
+Production-ready plugins for Claude Code.
 
 ## Available Plugins
 
 | Plugin | Description | Version |
 |--------|-------------|---------|
 | [pr-patrol](./pr-patrol) | Process PR bot comments with batch validation and 7-gate workflow | v1.4.1 |
-| [spec-interview](./spec-interview) | Comprehensive 8-stage requirements interview with adaptive technical depth | v2.0.0 |
-
----
+| [spec-interview](./spec-interview) | Structured requirements interviews for error-free specs | v2.0.0 |
 
 ## Installation
-
-### Via Claude Code CLI
 
 ```bash
 # Add the marketplace
 /plugin marketplace add SmartOzzehir/smart-plugins
 
-# Install a plugin
+# Install plugins
 /plugin install pr-patrol
 /plugin install spec-interview
 ```
 
-### Manual Installation
-
-```bash
-# Clone the repo
-git clone https://github.com/SmartOzzehir/smart-plugins.git
-
-# Use with Claude Code
-claude --plugin-dir ./smart-plugins/pr-patrol
-claude --plugin-dir ./smart-plugins/spec-interview
-```
-
 ---
 
-## pr-patrol v1.4.1
+## pr-patrol
 
-**Process PR bot comments intelligently with a 7-gate workflow.**
-
-Handles comments from: CodeRabbit, Greptile, GitHub Copilot, Codex, Sentry
-
-### Usage
+Processes PR review bot comments (CodeRabbit, Greptile, Copilot, Codex, Sentry) through a systematic 7-gate workflow.
 
 ```bash
 /pr-patrol           # Auto-detect PR from current branch
 /pr-patrol 123       # Specific PR number
-/pr-patrol owner/repo#123  # Full PR reference
 ```
 
-### Features
-
-- **7-Gate Workflow**: Systematic processing from collection to completion
-- **Batch Validation**: Parallel validation of multiple comments
-- **State Tracking**: Persistent state across sessions
-- **Smart Filtering**: Separates actionable issues from noise
-- **Billboard UI**: Visual progress tracking
-
-### Gates
-
-1. **Collect** - Gather all bot comments from PR
-2. **Analyze** - Categorize and prioritize comments
-3. **Validate** - Verify which comments identify real issues
+**Gates:**
+1. **Collect** - Gather bot comments from PR
+2. **Analyze** - Categorize and prioritize
+3. **Validate** - Check which comments are real issues
 4. **Plan** - Design fixes for validated issues
-5. **Implement** - Apply approved fixes
-6. **Verify** - Confirm fixes resolve issues
-7. **Complete** - Mark comments as resolved
+5. **Implement** - Apply fixes
+6. **Verify** - Confirm fixes work
+7. **Complete** - Mark resolved
 
 ---
 
-## spec-interview v2.0.0
+## spec-interview
 
-**Comprehensive requirements gathering with adaptive technical depth.**
-
-Captures 37% more requirements than traditional methods through intelligent AI interviewing.
-
-### Usage
+Conducts structured requirements interviews to create comprehensive PRD documents.
 
 ```bash
-# From an idea
-/spec-interview "Add dark mode to the app"
-
-# From existing spec file
-/spec-interview docs/phases/phase-10.md
-
-# With language preference (12 languages supported)
-/spec-interview "Add export feature" deutsch
-/spec-interview "Kullanıcı yönetimi ekle" türkçe
+/spec-interview "Add dark mode"              # From idea
+/spec-interview docs/spec.md                 # From existing file
+/spec-interview "Nueva función" spanish      # With language
 ```
 
-### Features
+**How it works:**
+- Asks as many questions as needed (no limit)
+- Never skips ambiguity - clarifies immediately
+- Provides expert recommendations on every question
+- Adapts explanations to your technical level
+- Outputs a complete 13-section PRD
 
-- **8-Stage Interview Methodology**:
-  1. Problem & Vision (Why?)
-  2. Stakeholders & Users (Who?)
-  3. Functional Requirements (What?)
-  4. UI/UX Design (How it looks?)
-  5. Edge Cases & Error Handling (What could go wrong?)
-  6. Non-Functional Requirements (Quality attributes)
-  7. Technical Architecture (For technical users)
-  8. Prioritization & Phasing (What first?)
+**8 Interview Stages:**
+1. Problem & Vision
+2. Stakeholders & Users
+3. Functional Requirements
+4. UI/UX Design
+5. Edge Cases
+6. Non-Functional Requirements
+7. Technical Architecture
+8. Prioritization & Phasing
 
-- **Adaptive Technical Depth**:
-  - **Non-technical**: ELI5 explanations, business-focused
-  - **Somewhat technical**: Balanced approach
-  - **Very technical**: Direct implementation discussions
-
-- **Multi-Language Support** (12 languages):
-  Turkish, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Japanese, Chinese, Korean, Arabic
-
-- **Comprehensive PRD Output**:
-  - Executive Summary & Success Metrics
-  - Problem Statement & User Personas
-  - User Stories with MoSCoW prioritization
-  - Functional & Non-Functional Requirements
-  - UI/UX Specifications with state design
-  - Edge Cases & Error Handling
-  - Technical Notes & Dependencies
-  - Phasing & Open Questions
-
-### Methodology
-
-Based on industry best practices:
-- 60 Requirements Gathering Interview Questions
-- PRD Templates (Product School, Aha!, Atlassian)
-- UX Requirements Gathering (UXPin, Koru UX)
-- AI Requirements Gathering 2025 research
-
-Key statistic: **47% of project failures are due to poor requirements** (Standish Group CHAOS Report)
+**Supports:** English, Turkish, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Japanese, Chinese, Korean, Arabic
 
 ---
-
-## Author
-
-**SmartOzzehir** - [GitHub](https://github.com/SmartOzzehir)
 
 ## License
 
-MIT License - see [LICENSE](./LICENSE) for details.
+MIT - [LICENSE](./LICENSE)
 
-## Contributing
+## Author
 
-Contributions welcome! Please open an issue or PR.
-
----
-
-*Built with ❤️ for the Claude Code community*
+[SmartOzzehir](https://github.com/SmartOzzehir)

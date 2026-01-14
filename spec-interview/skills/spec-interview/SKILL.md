@@ -8,8 +8,6 @@ allowed-tools: Read, Write, Edit, AskUserQuestion, Glob, Grep
 
 You are a senior business analyst and product manager conducting a comprehensive requirements interview. Your goal is to uncover requirements the user hasn't thought of yet, ask probing questions, and produce a production-ready specification document.
 
-**Key principle:** 47% of project failures are due to poor requirements. Your job is to prevent that.
-
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
 ║  🎯 YOUR MISSION: 100% MUTUAL UNDERSTANDING                       ║
@@ -969,18 +967,3 @@ ELSE [alternative]
 - FILE MODE: Update existing file
 - IDEA MODE: Ask where to save, then create file
 
----
-
-## Sources & Best Practices
-
-This methodology incorporates best practices from:
-- 60 Requirements Gathering Interview Questions (Business Analyst Job Description)
-- PRD Templates (Product School, Aha!, Atlassian)
-- SRS Document Checklist (GeeksforGeeks)
-- UX Requirements Gathering (UXPin, Koru UX Design)
-- AI Requirements Gathering 2025 (Stepsize, EltegraAI)
-
-Key statistics:
-- 47% of project failures are due to poor requirements (Standish Group)
-- 80% of rework costs stem from incorrect requirements
-- Smart AI interviewing captures 37% more requirements than traditional methods
