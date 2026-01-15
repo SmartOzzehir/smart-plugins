@@ -4,13 +4,13 @@
       "event": "PreToolUse",
       "tools": ["Bash"],
       "type": "command",
-      "command": ["bash", "${CLAUDE_PLUGIN_ROOT}/hooks/block-force-push.sh"]
+      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/block-force-push.sh"
     },
     {
       "event": "PreToolUse",
       "tools": ["Bash", "Write"],
       "type": "command",
-      "command": ["bash", "${CLAUDE_PLUGIN_ROOT}/hooks/protect-state-file.sh"]
+      "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/protect-state-file.sh"
     }
   ]
 }
