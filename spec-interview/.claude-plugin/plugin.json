@@ -1,7 +1,7 @@
 {
   "name": "spec-interview",
-  "version": "2.0.0",
-  "description": "Comprehensive 8-stage requirements interview with adaptive technical depth and PRD generation",
+  "version": "3.0.0",
+  "description": "Smart requirements interview with pre-analysis, adaptive questioning, validation, and complexity analysis",
   "author": {
     "name": "SmartOzzehir",
     "url": "https://github.com/SmartOzzehir"

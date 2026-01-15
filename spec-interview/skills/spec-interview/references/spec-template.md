@@ -169,7 +169,34 @@ ELSE [alternative]
 
 ---
 
-## 9. Technical Notes
+## 9. Assumptions & Constraints
+
+### Assumptions
+Expectations believed to be true but not yet validated:
+
+| Assumption | Rationale | Risk if Wrong |
+|------------|-----------|---------------|
+| [Assumption 1] | [Why we believe this] | [Impact] |
+| [Assumption 2] | [Why we believe this] | [Impact] |
+
+### Constraints
+Limitations that affect design decisions:
+
+| Constraint | Type | Impact on Design |
+|------------|------|------------------|
+| [Constraint 1] | Technical/Business/Resource | [How it affects approach] |
+| [Constraint 2] | Technical/Business/Resource | [How it affects approach] |
+
+### Risks
+Identified risks and mitigation strategies:
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| [Risk 1] | Low/Medium/High | [Consequence] | [Plan] |
+
+---
+
+## 10. Technical Notes
 
 [Implementation guidance for developers - only if technical interview was conducted]
 
@@ -183,7 +210,7 @@ ELSE [alternative]
 
 ---
 
-## 10. Dependencies
+## 11. Dependencies
 
 ### Requires Before Start
 - [ ] [Dependency 1]
@@ -194,7 +221,7 @@ ELSE [alternative]
 
 ---
 
-## 11. Phasing (if applicable)
+## 12. Phasing (if applicable)
 
 ### Phase 1: MVP ([Target Date])
 - [Scope item 1]
@@ -206,7 +233,7 @@ ELSE [alternative]
 
 ---
 
-## 12. Open Questions
+## 13. Open Questions
 
 | Question | Owner | Due Date | Status |
 |----------|-------|----------|--------|
@@ -214,7 +241,7 @@ ELSE [alternative]
 
 ---
 
-## 13. Appendix
+## 14. Appendix
 
 ### A. Glossary
 - **[Term]:** [Definition]
