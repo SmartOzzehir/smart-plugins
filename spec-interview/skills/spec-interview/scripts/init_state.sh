@@ -44,8 +44,8 @@ TIMESTAMP=$($DATE_CMD -Iseconds)
 cat > "$STATE_FILE" << EOF
 ---
 spec_id: "${SPEC_ID}"
-current_stage: 0
-status: calibration
+current_phase: 0
+status: initialized
 tech_level: ""
 language: "${LANGUAGE}"
 created: "${TIMESTAMP}"
@@ -56,77 +56,80 @@ last_updated: "${TIMESTAMP}"
 
 ## Progress
 
-| Stage | Status | Summary |
+| Phase | Status | Summary |
 |-------|--------|---------|
-| 0. Calibration | ⏳ | Pending |
+| 0. Init | ✅ | Session created |
+| 0.5 Calibration | ⏳ | Pending |
 | 1. Problem & Vision | ⬜ | - |
-| 2. Stakeholders | ⬜ | - |
+| 2. Users & Stakeholders | ⬜ | - |
 | 3. Functional | ⬜ | - |
 | 4. UI/UX | ⬜ | - |
 | 5. Edge Cases | ⬜ | - |
 | 6. Non-Functional | ⬜ | - |
 | 7. Technical | ⬜ | - |
 | 8. Prioritization | ⬜ | - |
+| 9. Validation | ⬜ | - |
+| 10. Output | ⬜ | - |
 
 ---
 
-## Stage 0: Calibration
+## Phase 0.5: Calibration
 
 (Pending tech level assessment)
 
 ---
 
-## Stage 1: Problem & Vision
+## Phase 1: Problem & Vision
 
 (Not started)
 
 ---
 
-## Stage 2: Stakeholders & Users
+## Phase 2: Users & Stakeholders
 
 (Not started)
 
 ---
 
-## Stage 3: Functional Requirements
+## Phase 3: Functional Requirements
 
 (Not started)
 
 ---
 
-## Stage 4: UI/UX Design
+## Phase 4: UI/UX Design
 
 (Not started)
 
 ---
 
-## Stage 5: Edge Cases & Error Handling
+## Phase 5: Edge Cases & Error Handling
 
 (Not started)
 
 ---
 
-## Stage 6: Non-Functional Requirements
+## Phase 6: Non-Functional Requirements
 
 (Not started)
 
 ---
 
-## Stage 7: Technical Architecture
+## Phase 7: Technical Architecture
 
 (Not started)
 
 ---
 
-## Stage 8: Prioritization & Phasing
+## Phase 8: Prioritization & Phasing
 
 (Not started)
 
 ---
 
-## Validation
+## Validation Results
 
-(Pending - runs after all stages complete)
+(Pending - runs after all phases complete)
 
 ---
 

@@ -3,8 +3,8 @@
 # Usage: ./update_state.sh <state_file> <field> <value>
 #
 # Examples:
-#   ./update_state.sh .claude/spec-interviews/dashboard-export.md status in_progress
-#   ./update_state.sh .claude/spec-interviews/dashboard-export.md current_stage 3
+#   ./update_state.sh .claude/spec-interviews/dashboard-export.md status interviewing
+#   ./update_state.sh .claude/spec-interviews/dashboard-export.md current_phase 3
 #   ./update_state.sh .claude/spec-interviews/dashboard-export.md tech_level "very_technical"
 #   ./update_state.sh .claude/spec-interviews/dashboard-export.md last_updated "now"
 
