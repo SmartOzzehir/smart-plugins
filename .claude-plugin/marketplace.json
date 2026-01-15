@@ -17,8 +17,8 @@
     },
     {
       "name": "spec-interview",
-      "description": "8-stage requirements interview with PRD generation",
-      "version": "2.0.0",
+      "description": "Smart requirements interview with pre-analysis, validation, and PRD generation",
+      "version": "3.0.0",
       "source": "./spec-interview",
       "category": "productivity",
       "homepage": "https://github.com/SmartOzzehir/smart-plugins/tree/main/spec-interview"
