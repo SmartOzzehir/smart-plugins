@@ -8,13 +8,7 @@
   },
   "repository": "https://github.com/SmartOzzehir/smart-plugins/tree/main/spec-interview",
   "homepage": "https://github.com/SmartOzzehir/smart-plugins/tree/main/spec-interview#readme",
-  "bugs": {
-    "url": "https://github.com/SmartOzzehir/smart-plugins/issues"
-  },
   "license": "MIT",
-  "engines": {
-    "claude-code": ">=1.0.0"
-  },
   "keywords": [
     "requirements",
     "spec",
