@@ -14,14 +14,9 @@ export async function processDataBatch(items: DataItem[]): Promise<void> {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
 
-    // Synchronous delay - should use proper async
-    const start = Date.now();
-    while (Date.now() - start < 100) {
-      // Busy wait - terrible pattern
-    }
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Type coercion issue
-    if (item.value == "0") {
+    if (item.value === 0) {
       console.log("Zero value detected");
     }
 
@@ -54,7 +49,8 @@ export async function riskyOperation(): Promise<void> {
   try {
     await fetch("/api/risky");
   } catch (e) {
-    // Silently swallow error - bots should flag this
+    console.error("riskyOperation failed:", e);
+    throw e;
   }
 }
 

@@ -4,8 +4,10 @@
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchUserData(userId: any): Promise<any> {
-  // Missing error handling - bots should catch this
   const response = await fetch(`/api/users/${userId}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user: ${response.statusText}`);
+  }
   const data = await response.json();
   return data;
 }
@@ -21,19 +23,17 @@ export function isAdult(age: number): boolean {
   return age >= 18;
 }
 
-// Unused import pattern - some bots catch this
-import { useState, useEffect, useCallback } from "react";
 
-// Missing async/await - potential issue
-export function processUsers(users: any[]) {
-  users.map((u) => {
-    fetch(`/api/process/${u.id}`); // Missing await
-  });
+
+export async function processUsers(users: any[]) {
+  await Promise.all(users.map((u) => fetch(`/api/process/${u.id}`)));
 }
 
-// SQL injection potential - security bots catch this
-export function buildQuery(userInput: string): string {
-  return `SELECT * FROM users WHERE name = '${userInput}'`;
+export function buildQuery(userInput: string): { query: string; params: string[] } {
+  return {
+    query: "SELECT * FROM users WHERE name = ?",
+    params: [userInput]
+  };
 }
 
 // Hardcoded credentials - security issue
