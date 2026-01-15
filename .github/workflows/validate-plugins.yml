@@ -59,7 +59,6 @@ jobs:
             # Check required fields
             name=$(jq -r '.name' "$manifest")
             version=$(jq -r '.version' "$manifest")
-            description=$(jq -r '.description' "$manifest")
 
             if [ "$name" == "null" ]; then
               echo "ERROR: Missing 'name' in $manifest"
@@ -116,15 +115,13 @@ jobs:
       - name: Validate YAML frontmatter in commands
         run: |
           echo "Checking YAML frontmatter..."
-          for file in $(find pr-patrol spec-interview -path "*/commands/*.md" -o -path "*/agents/*.md" 2>/dev/null); do
-            if [ -f "$file" ]; then
-              # Check if file starts with ---
-              if head -1 "$file" | grep -q "^---$"; then
-                # Count --- occurrences (should be at least 2)
-                count=$(grep -c "^---$" "$file" || true)
-                if [ "$count" -lt 2 ]; then
-                  echo "WARNING: Incomplete frontmatter in $file"
-                fi
+          find pr-patrol spec-interview \( -path "*/commands/*.md" -o -path "*/agents/*.md" \) -print0 2>/dev/null | while IFS= read -r -d '' file; do
+            # Check if file starts with ---
+            if head -1 "$file" | grep -q "^---$"; then
+              # Count --- occurrences (should be at least 2)
+              count=$(grep -c "^---$" "$file" || true)
+              if [ "$count" -lt 2 ]; then
+                echo "WARNING: Incomplete frontmatter in $file"
               fi
             fi
           done
@@ -133,7 +130,7 @@ jobs:
       - name: Validate script permissions
         run: |
           echo "Checking script permissions..."
-          for script in $(find pr-patrol -name "*.sh" 2>/dev/null); do
+          find pr-patrol -name "*.sh" -print0 2>/dev/null | while IFS= read -r -d '' script; do
             if [ ! -x "$script" ]; then
               echo "WARNING: $script is not executable"
             fi
