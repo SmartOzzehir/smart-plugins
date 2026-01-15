@@ -12,9 +12,9 @@ description: |
   </commentary>
   </example>
 
-tools: ["Read", "Grep", "Glob"]
+allowed-tools: ["Read", "Grep", "Glob"]
 model: opus
-color: orange
+color: yellow
 ---
 
 # PR Fix Architect

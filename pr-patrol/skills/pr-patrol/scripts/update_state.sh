@@ -5,14 +5,30 @@
 # Examples:
 #   ./update_state.sh .claude/bot-reviews/PR-32.md status validated
 #   ./update_state.sh .claude/bot-reviews/PR-32.md current_cycle 3
-#   ./update_state.sh .claude/bot-reviews/PR-32.md last_updated "$(date -Iseconds)"
+#   ./update_state.sh .claude/bot-reviews/PR-32.md last_updated "now"  # auto-generates timestamp
 #   ./update_state.sh .claude/bot-reviews/PR-32.md replied_comment_ids "[123, 456, 789]"
 
 set -euo pipefail
 
+# Platform detection - need GNU date for -Iseconds flag
+if date --version &>/dev/null; then
+  DATE_CMD="date"
+elif command -v gdate &>/dev/null; then
+  DATE_CMD="gdate"
+else
+  echo "ERROR: GNU date required. On macOS: brew install coreutils" >&2
+  echo "Windows users: Use WSL" >&2
+  exit 1
+fi
+
 STATE_FILE="${1:?Usage: $0 <state_file> <field> <value>}"
 FIELD="${2:?Usage: $0 <state_file> <field> <value>}"
 VALUE="${3:?Usage: $0 <state_file> <field> <value>}"
+
+# Support "now" keyword for timestamp fields - generates platform-aware ISO timestamp
+if [[ "$VALUE" == "now" ]]; then
+  VALUE=$($DATE_CMD -Iseconds)
+fi
 
 if [[ ! -f "$STATE_FILE" ]]; then
   echo "Error: State file not found: $STATE_FILE" >&2
@@ -92,7 +108,7 @@ fi
 
 # Always update last_updated (unless that's what we just updated)
 if [[ "$FIELD" != "last_updated" ]]; then
-  TIMESTAMP=$(date -Iseconds)
+  TIMESTAMP=$($DATE_CMD -Iseconds)
   ESCAPED_TIMESTAMP=$(escape_sed "$TIMESTAMP")
 
   if grep -q "^last_updated:" "$STATE_FILE"; then

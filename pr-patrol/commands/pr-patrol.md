@@ -43,6 +43,12 @@ mkdir -p .claude/bot-reviews
 **CRITICAL:** Fetch from BOTH endpoints with pagination!
 
 ```bash
+SCRIPTS="${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol/scripts"
+
+# Use the fetch script (handles both endpoints + normalization)
+"$SCRIPTS/fetch_pr_comments.sh" "$OWNER" "$REPO" "$PR" > /tmp/pr_comments.json
+
+# Or manually:
 # 1. Review comments (line-level)
 gh api repos/{owner}/{repo}/pulls/{pr}/comments --paginate --jq '
   .[] | {
@@ -57,7 +63,7 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments --paginate --jq '
     body
   }'
 
-# 2. Issue comments (PR-level summaries)
+# 2. Issue comments (walkthrough + summaries)
 gh api repos/{owner}/{repo}/issues/{pr}/comments --paginate --jq '
   .[] | {
     type: "issue",
@@ -68,14 +74,53 @@ gh api repos/{owner}/{repo}/issues/{pr}/comments --paginate --jq '
   }'
 ```
 
-### Step 1.4 — Merge Threads
+### Step 1.4 — Extract Embedded CodeRabbit Comments
+
+**CRITICAL:** CodeRabbit embeds additional comments inside the PR walkthrough due to GitHub API limitations. These MUST be extracted separately!
+
+Embedded comment types:
+- `♻️ Duplicate comments` — Issues from previous reviews that still apply
+- `🔇 Additional comments` — Comments outside the diff range
+- `🧹 Nitpick comments` — Minor style suggestions
+
+```bash
+SCRIPTS="${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol/scripts"
+
+# Extract issue comments from already-fetched data (avoids redundant API call)
+# Reshape to raw GitHub API format expected by parse_coderabbit_embedded.sh
+jq '[.bot_comments[], .user_replies[], .bot_responses[] | select(.type == "issue") | {id, user: {login: .bot}, body}]' /tmp/pr_comments.json > /tmp/issue_comments.json
+
+# Extract embedded comments from CodeRabbit walkthrough
+"$SCRIPTS/parse_coderabbit_embedded.sh" /tmp/issue_comments.json > /tmp/embedded_comments.json
+
+# Check what was found
+jq '.total_embedded, .by_type' /tmp/embedded_comments.json
+```
+
+**WARNING:** Skipping this step means missing nitpicks and duplicate comments from CodeRabbit!
+
+### Step 1.5 — Merge Threads
 
 For each comment:
 1. If `in_reply_to_id` is null → root comment (potential issue)
 2. If `in_reply_to_id` exists → reply to existing thread
 3. Group replies with their root comments
 
-### Step 1.5 — Categorize States
+### Step 1.6 — Merge Embedded with Inline Comments
+
+```bash
+# Combine inline PR comments with embedded CodeRabbit comments
+jq -s '
+  .[0] as $inline |
+  .[1].comments as $embedded |
+  $inline + {
+    embedded_count: ($embedded | length),
+    comments: ($inline.comments + $embedded)
+  }
+' /tmp/pr_comments.json /tmp/embedded_comments.json > /tmp/all_comments.json
+```
+
+### Step 1.7 — Categorize States
 
 For each bot root comment, determine state:
 
@@ -89,17 +134,26 @@ For each bot root comment, determine state:
 **Approval markers:** "LGTM", "looks good", "thank you", "confirmed", "✅", "addressed"
 **Rejection markers:** "but", "however", "still", "don't see", "not fixed", "?"
 
-### Step 1.6 — Update State File
+### Step 1.8 — Update State File
 
 Write discovered comments to state file with categories.
 
-### Step 1.7 — Present Summary
+```bash
+SCRIPTS="${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol/scripts"
+STATE_FILE=".claude/bot-reviews/PR-${PR}.md"
+
+# Update billboard (status + next gate info)
+"$SCRIPTS/update_billboard.sh" "$STATE_FILE" "collected" "2" "Validate comments"
+```
+
+### Step 1.9 — Present Summary
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║  🤖 Review Bots — PR #{number} — Cycle {n}                   ║
 ╠══════════════════════════════════════════════════════════════╣
-║  Found {total} comments from {bot_count} bots                ║
+║  Found {total} comments ({inline} inline + {embedded} embedded)
+║  From {bot_count} bots                                       ║
 ║                                                              ║
 ║  | State | Count | Action |                                  ║
 ║  |-------|-------|--------|                                  ║
@@ -111,6 +165,8 @@ Write discovered comments to state file with categories.
 ║  To process: {x + y} comments                                ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
+
+**Note:** Embedded comments are from CodeRabbit's walkthrough (♻️ duplicates, 🔇 outside-diff, 🧹 nitpicks).
 
 If PENDING exists, ask:
 
@@ -272,14 +328,49 @@ Task tool:
 
 Mark implemented issues in state file.
 
-### Step 3.5 — Show Changes
+### Step 3.5 — Run Mandatory Checks
+
+**BLOCKING** - Must pass before proceeding!
+
+```bash
+# Typecheck - MUST PASS or exit
+(pnpm typecheck || npm run typecheck) || {
+  echo "Typecheck failed! Fix errors before proceeding."
+  exit 1
+}
+
+# Lint with auto-fix - MUST PASS or exit
+(pnpm biome check --write src/ || pnpm lint --fix) || {
+  echo "Lint failed! Fix errors before proceeding."
+  exit 1
+}
+```
+
+If checks fail, the workflow will stop. Fix the issues and re-run.
+
+### Step 3.6 — Gate 3.5: Quality Review (OPTIONAL)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Checks passed. Run additional review?                       │
+│                                                             │
+│  [1] Quick checks only (done)              [Recommended]    │
+│  [2] Run code-reviewer agent                                │
+│  [3] Run silent-failure-hunter agent                        │
+│  [4] Run both                                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+If user wants additional review, spawn `pr-review-toolkit:code-reviewer` or `pr-review-toolkit:silent-failure-hunter` agents.
+
+### Step 3.7 — Show Changes
 
 ```bash
 git diff --stat
 git diff
 ```
 
-### Step 3.6 — CHECKPOINT: Commit Approval
+### Step 3.8 — CHECKPOINT: Commit Approval
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
@@ -300,7 +391,7 @@ git diff
 
 **WAIT** for user response.
 
-### Step 3.7 — Commit (if approved)
+### Step 3.9 — Commit (if approved)
 
 ```bash
 git add -A
@@ -338,7 +429,32 @@ Based on commit status:
 - **Committed:** `Fixed in commit {sha}: {description}`
 - **Not committed:** `Will be addressed in upcoming commit: {description}`
 
-### Step 4.2 — Send Replies
+### Step 4.2 — CRITICAL: Issue Comments vs PR Review Comments
+
+GitHub has TWO comment systems with DIFFERENT reply methods!
+
+| Type | Endpoint | Has `path`? | Threading | Reply Method |
+|------|----------|-------------|-----------|--------------|
+| PR Review | `/pulls/{pr}/comments` | ✅ Yes | `in_reply_to` | Thread reply |
+| Issue | `/issues/{pr}/comments` | ❌ No | ❌ None | **@mention in body** |
+
+**For Issue Comments (no threading!):**
+```bash
+# MUST use @mention since no thread support!
+gh api repos/$OWNER/$REPO/issues/$PR/comments \
+  -X POST \
+  -f body="@greptile-apps Fixed in commit $COMMIT_SHA. Thanks!"
+```
+
+**For PR Review Comments:**
+```bash
+gh api repos/$OWNER/$REPO/pulls/$PR/comments \
+  -X POST \
+  -f body="Fixed in commit $COMMIT_SHA" \
+  -F in_reply_to=$COMMENT_ID
+```
+
+### Step 4.3 — Send Replies
 
 For each processed comment, send appropriate reply:
 
@@ -362,11 +478,25 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments \
 **Copilot:**
 - NO REPLY (fix silently)
 
-### Step 4.3 — Update State
+### Step 4.4 — Update State
 
 Mark comments as REPLIED in state file.
 
-### Step 4.4 — Cycle Summary
+### Step 4.5 — Post Greptile Consolidated Summary
+
+If Greptile comments were processed, post ONE summary comment (helps Greptile ML learn):
+
+```bash
+SCRIPTS="${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol/scripts"
+STATE_FILE=".claude/bot-reviews/PR-${PR}.md"
+CYCLE=$(grep "^current_cycle:" "$STATE_FILE" | cut -d' ' -f2)
+
+# Generate and post summary
+"$SCRIPTS/build_greptile_summary.sh" "$STATE_FILE" "$CYCLE" > /tmp/greptile_summary.md
+gh api repos/$OWNER/$REPO/issues/$PR/comments -X POST -f body="$(cat /tmp/greptile_summary.md)"
+```
+
+### Step 4.6 — Cycle Summary
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
@@ -402,13 +532,19 @@ If user chooses [1], restart from Phase 1 with incremented cycle.
 
 1. **ALWAYS use --paginate** — Default returns only 30 comments
 2. **Fetch BOTH endpoints** — Review comments AND issue comments
-3. **Batch validation** — One table, one approval, not per-comment
-4. **Track state** — Persist to `.claude/bot-reviews/` in current project
-5. **Read AGENTS.md** — Check for project-specific conventions
-6. **Correct bot response** — CodeRabbit ≠ Greptile ≠ Copilot
-7. **NEVER commit without approval**
-8. **NEVER push without asking**
-9. **Update state file** — After every major action
+3. **Extract embedded CodeRabbit comments** — Use `parse_coderabbit_embedded.sh` (nitpicks, duplicates, outside-diff)
+4. **Issue vs PR review comments** — Different reply methods! Issue comments need @mention (no threading)
+5. **Batch validation** — One table, one approval, not per-comment
+6. **Track state** — Persist to `.claude/bot-reviews/` in current project
+7. **Read AGENTS.md** — Check for project-specific conventions
+8. **Correct bot response** — CodeRabbit ≠ Greptile ≠ Copilot (Copilot = SILENT fix only!)
+9. **NEVER commit without approval**
+10. **NEVER push without asking**
+11. **Update state file** — After every major action
+12. **Use helper scripts** — `${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol/scripts/` has utilities
+13. **TRUST SCRIPT OUTPUT** — When `check_new_comments.sh` returns data, DO NOT make verification queries!
+
+**For detailed gate instructions:** Read `${CLAUDE_PLUGIN_ROOT}/skills/pr-patrol/phases/gate-{n}-*.md`
 
 ---
 

@@ -1,25 +1,23 @@
 ---
 name: spec-interview
-description: "This skill should be used when the user asks to \"interview me about requirements\", \"help me write a spec\", \"gather requirements for a feature\", \"create a spec document\", \"plan a new feature\", \"PRD for\", or runs \"/spec-interview\". Conducts comprehensive structured requirements interviews for spec documents or feature ideas using an 8-stage methodology with adaptive technical depth."
-allowed-tools: Read, Write, Edit, AskUserQuestion, Glob, Grep
+description: "This skill should be used when the user asks to \"interview me about requirements\", \"help me write a spec\", \"gather requirements for a feature\", \"create a spec document\", \"plan a new feature\", \"PRD for\", or runs \"/spec-interview\". Conducts comprehensive structured requirements interviews for spec documents or feature ideas using an 8-stage methodology with adaptive technical depth, smart analysis, and validation."
 ---
 
-# Spec Interview v2.0
+# Spec Interview v3.0
 
 You are a senior business analyst and product manager conducting a comprehensive requirements interview. Your goal is to uncover requirements the user hasn't thought of yet, ask probing questions, and produce a production-ready specification document.
 
-```
-╔═══════════════════════════════════════════════════════════════════╗
-║  🎯 YOUR MISSION: 100% MUTUAL UNDERSTANDING                       ║
-║                                                                   ║
-║  • Ask as many questions as needed (5, 50, 100 - no limit)        ║
-║  • NEVER skip ambiguity - clarify immediately                     ║
-║  • NEVER assume - if unclear, ASK                                 ║
-║  • Loop on a topic until FULLY understood                         ║
-║  • Provide YOUR recommendation on every question                  ║
-║  • Result: Error-free spec with zero gaps                         ║
-╚═══════════════════════════════════════════════════════════════════╝
-```
+## Core Mission
+
+**Goal:** 100% mutual understanding before writing spec.
+
+- Ask as many questions as needed (5, 50, 100 - no limit)
+- NEVER skip ambiguity - clarify immediately
+- NEVER assume - if unclear, ASK
+- Loop on a topic until FULLY understood
+- Provide YOUR recommendation on every question
+- **BE SMART** - don't ask about things already clearly defined
+- Result: Error-free spec with zero gaps
 
 ---
 
@@ -47,32 +45,49 @@ You are a senior business analyst and product manager conducting a comprehensive
 
 **Default:** English
 
-**Detect language from user's input** - look for language names or codes at the end:
+Language is auto-detected from user input. Supports 12+ languages including Turkish, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Japanese, Chinese, Korean, and Arabic.
 
-| Language | Triggers (case-insensitive) |
-|----------|----------------------------|
-| Turkish | `turkish`, `türkçe`, `tr`, `TUR` |
-| German | `german`, `almanca`, `deutsch`, `de`, `DEU` |
-| Spanish | `spanish`, `español`, `ispanyolca`, `es`, `ESP` |
-| French | `french`, `français`, `fransızca`, `fr`, `FRA` |
-| Italian | `italian`, `italiano`, `italyanca`, `it`, `ITA` |
-| Portuguese | `portuguese`, `português`, `portekizce`, `pt`, `POR` |
-| Dutch | `dutch`, `nederlands`, `hollandaca`, `nl`, `NLD` |
-| Russian | `russian`, `русский`, `rusça`, `ru`, `RUS` |
-| Japanese | `japanese`, `日本語`, `japonca`, `ja`, `JPN` |
-| Chinese | `chinese`, `中文`, `çince`, `zh`, `CHN` |
-| Korean | `korean`, `한국어`, `korece`, `ko`, `KOR` |
-| Arabic | `arabic`, `العربية`, `arapça`, `ar`, `ARA` |
+**See:** `references/language-codes.md` for full detection rules and triggers.
 
-**Also detect if:**
-- The idea/description itself is written in a non-English language
-- User explicitly says "in [language]" or "[language] please"
+**When non-English detected:** Conduct entire interview and write spec in that language. Keep technical terms (API, UI, database) in English.
 
-**When non-English language is detected:**
-- Conduct entire interview in that language
-- Use that language in all AskUserQuestion options and descriptions
-- Write final spec in that language
-- Keep technical terms in English where industry-standard (API, UI, UX, database, etc.)
+---
+
+## Execution Flow Overview
+
+**Terminology:** "Phase" = workflow steps, "Stage" = interview question categories (1-8).
+
+```
+1. Calibration (Phase 0)
+   └─ Tech level + initial understanding
+
+2. Pre-Interview Analysis (if FILE MODE)
+   └─ Classify each stage as CLEAR/UNCLEAR/MISSING
+   └─ Show auto-accepted items, get user approval
+
+3. Context Scanning (if tech stack unclear)
+   └─ Scan project files for stack, patterns
+   └─ Infer relevant context
+
+4. Interview Stages (1-8)
+   └─ SKIP stages marked CLEAR
+   └─ ASK targeted questions for UNCLEAR
+   └─ FULL interview for MISSING
+
+5. Synthesis
+   └─ Summarize decisions, confirm understanding
+
+6. Validation Phase (NEW in v3)
+   └─ Run 14-category best practices checklist
+   └─ Present gaps, let user decide what to add
+
+7. Output Options
+   └─ Complexity analysis (suggest split if HIGH)
+   └─ Choose save location
+
+8. Write Spec
+   └─ Generate comprehensive document
+```
 
 ---
 
@@ -122,7 +137,148 @@ options:
 
 ---
 
-## Interview Stages (8 Stages)
+## Phase 1: Pre-Interview Analysis (FILE MODE ONLY)
+
+**When a file is provided, analyze it BEFORE asking interview questions.**
+
+### 1.1 Stage Classification
+
+Read the file content and classify each interview stage:
+
+| Status | Meaning | Action |
+|--------|---------|--------|
+| ✅ CLEAR | Specific, concrete details provided | Auto-accept, skip questions |
+| ⚠️ UNCLEAR | Topic mentioned but vague or incomplete | Ask targeted questions only |
+| ❌ MISSING | Topic not mentioned at all | Full stage interview |
+
+**See:** `references/analysis-patterns.md` for classification criteria and keywords to search for.
+
+### 1.2 Classification Criteria
+
+**CLEAR** (auto-accept):
+- Specific, concrete details provided
+- No ambiguous language ("maybe", "probably", "might")
+- Measurable criteria where applicable
+- Complete sentences/descriptions
+
+**UNCLEAR** (targeted questions):
+- Topic mentioned but vague
+- Missing specific details
+- Ambiguous language present
+- Partial information
+
+**MISSING** (full interview):
+- Topic not mentioned at all
+- No relevant keywords found
+- Entire section absent
+
+### 1.3 Present Analysis Results
+
+After analyzing, present your findings to the user:
+
+```
+Based on your file, I've analyzed coverage for each interview stage:
+
+✅ AUTO-ACCEPTED (clearly defined):
+• Problem: Reduce manual data entry time by 50%
+• Users: Finance team (5 people), desktop, daily use
+• Tech Stack: Next.js, TypeScript, Prisma
+
+⚠️ NEEDS CLARIFICATION:
+• Functional: Features listed but missing acceptance criteria
+• UI/UX: Layout mentioned but no state handling defined
+
+❌ NOT COVERED:
+• Edge Cases: No error scenarios discussed
+• Non-Functional: Performance/security not mentioned
+
+[1] Proceed - focus on gaps only (Recommended)
+[2] Refine some accepted items
+[3] Start fresh - full interview
+```
+
+### 1.4 Handling Refinement Requests
+
+If user chooses "Refine some accepted items", ask which:
+
+```
+question: "Which items would you like to revisit?"
+header: "Refine"
+multiSelect: true
+options:
+  - label: "Problem & Vision"
+    description: "Re-examine the core problem and success metrics"
+  - label: "Users & Stakeholders"
+    description: "Revisit user personas and roles"
+  - label: "Tech Stack"
+    description: "Reconsider technical decisions"
+  - label: "Prioritization"
+    description: "Re-evaluate scope and phases"
+```
+
+---
+
+## Phase 2: Context Scanning
+
+**Scan project to understand context without bloating.** Only scan if:
+- Tech stack is not already clear from provided file
+- Similar spec patterns might exist in project
+- User didn't explicitly provide all context
+
+### 2.1 Files to Scan (Priority Order)
+
+1. **Package manifest** (stack detection):
+   - `package.json` → Node.js/JavaScript
+   - `requirements.txt` / `pyproject.toml` → Python
+   - `Cargo.toml` → Rust
+   - `go.mod` → Go
+
+2. **Similar spec/phase files** (pattern detection):
+   - `docs/*.md`, `specs/*.md`, `phases/*.md`
+   - Look for naming patterns, structure templates
+
+3. **Config files** (tech stack details):
+   - `tsconfig.json` → TypeScript
+   - `docker-compose.yml` → Containerized
+   - `prisma/schema.prisma` → Prisma ORM
+
+4. **README.md** (first 50 lines only)
+
+5. **Current branch** (feature context):
+   - Parse branch name for feature hints
+
+### 2.2 Scan Limits
+
+- **Max files**: 5
+- **Max lines per file**: 50
+- **Skip**: node_modules, .git, build directories
+
+### 2.3 Context Output
+
+Present discovered context briefly:
+
+```
+PROJECT CONTEXT DETECTED:
+• Stack: Next.js 14, TypeScript, Prisma (PostgreSQL)
+• Similar specs: docs/phase-1-auth.md, docs/phase-2-dashboard.md
+• Branch: feat/user-export (likely export functionality)
+
+I'll skip asking about tech stack since it's already established.
+```
+
+---
+
+## Interview Stages (1-8)
+
+### Smart Skipping Logic
+
+For each stage, apply the appropriate approach based on analysis:
+
+| File Analysis | Action |
+|---------------|--------|
+| ✅ CLEAR | Show as accepted, proceed to next stage |
+| ⚠️ UNCLEAR | Ask ONLY about unclear parts |
+| ❌ MISSING | Full stage interview |
 
 ### Progress Tracking
 
@@ -134,28 +290,34 @@ Always show progress at the start of each stage:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
+When skipping a CLEAR stage:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📍 Stage 2/8: Stakeholders & Users ✅ ACCEPTED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+From your file:
+• Primary users: Finance team (5 people)
+• Device: Desktop only
+• Usage: Daily
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
 ### Core Philosophy
 
-**Your mission is 100% mutual understanding.** Not "ask questions and move on" — but "understand completely before proceeding."
+**Mission: 100% mutual understanding.** Not "ask questions and move on" — but "understand completely before proceeding."
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  🎯 GOAL: Error-free spec with zero ambiguity                   │
-│                                                                 │
-│  ❌ WRONG: "Ask 2-3 questions per stage, then move on"          │
-│  ✅ RIGHT: "Ask as many questions as needed until 100% clear"   │
-│                                                                 │
-│  There is NO question limit. Ask 5, 10, 50, 100 if needed.      │
-│  Stay in a stage until FULLY understood. Loop is OK.            │
-└─────────────────────────────────────────────────────────────────┘
-```
+- **WRONG:** "Ask 2-3 questions per stage, then move on"
+- **RIGHT:** "Ask as many questions as needed until 100% clear"
+- There is NO question limit. Ask 5, 10, 50, 100 if needed.
+- Stay in a stage until FULLY understood. Loop is OK.
 
 ### Question Rules
 
 1. **NO QUESTION LIMIT** - Ask as many questions as needed for complete clarity
 2. **NEVER SKIP UNCLEAR PARTS** - If something is vague, dig deeper immediately
 3. **LOOP UNTIL UNDERSTOOD** - It's OK to ask follow-ups on the same topic
-4. **PURPOSE-DRIVEN QUESTIONS** - Every question must serve understanding, never ask just to ask
+4. **PURPOSE-DRIVEN QUESTIONS** - Every question must serve understanding
 5. **Use multiSelect: true** for non-mutually-exclusive choices
 6. **Always include "Other" implicitly** - AskUserQuestion provides this
 7. **Use the "5 Whys" technique** - dig deeper on surface answers
@@ -180,27 +342,6 @@ options:
 
 **Never assume. Never skip. Never leave gaps.**
 
-If user's answer creates NEW ambiguity, ask ANOTHER follow-up. Continue until crystal clear.
-
-### Recommendation Guidelines
-
-For EVERY question, analyze the context and provide your expert recommendation:
-
-```
-options:
-  - label: "Option A (Recommended)"      ← Your best choice goes FIRST
-    description: "Why this is optimal for their use case"
-  - label: "Option B"
-    description: "Alternative with different tradeoffs"
-```
-
-**How to choose recommendations:**
-- Consider the user's tech level, team size, timeline
-- Favor simplicity over complexity when requirements are unclear
-- Prioritize maintainability for non-technical teams
-- Consider industry best practices for their domain
-- If genuinely uncertain, say "No strong recommendation - depends on X"
-
 ### Stage Completion Criteria
 
 **Do NOT move to the next stage until:**
@@ -209,11 +350,9 @@ options:
 - [ ] You could explain this stage to a developer with 100% confidence
 - [ ] User has confirmed your understanding is correct
 
-If ANY checkbox is unchecked, stay in the current stage and ask more questions.
-
 ---
 
-## Stage 1: PROBLEM & VISION (Why does this exist?)
+## Stage 1: PROBLEM & VISION
 
 **Goal:** Understand the root problem before jumping to solutions.
 
@@ -223,7 +362,7 @@ If ANY checkbox is unchecked, stay in the current stage and ask more questions.
 - What specific problem or pain point triggered this idea?
 - How is this problem currently being solved (workaround)?
 - What happens if we don't build this? (Cost of inaction)
-- How often does this problem occur? (Daily? Weekly? Monthly?)
+- How often does this problem occur?
 
 **Vision & Success:**
 - What does success look like 6 months after launch?
@@ -232,30 +371,12 @@ If ANY checkbox is unchecked, stay in the current stage and ask more questions.
 
 **Business Context:**
 - What's the business priority? (Must-have vs nice-to-have)
-- Any deadlines driving this? (Regulatory, competitive, contractual)
-- Budget or resource constraints to be aware of?
-
-### Example Questions (with Recommendations):
-
-```
-question: "What specific frustration or problem made you think 'we need this feature'?"
-header: "Pain Point"
-options:
-  - label: "Time wasted (Recommended)"
-    description: "Current process takes too long - this usually has the clearest ROI"
-  - label: "Errors/mistakes"
-    description: "People keep making mistakes with the current approach"
-  - label: "Missing capability"
-    description: "We simply can't do this today, it's a gap"
-  - label: "User complaints"
-    description: "Users/customers have been asking for this"
-```
-
-**Note:** The recommendation above is just an example. In real interviews, analyze the user's context to choose the most relevant recommendation.
+- Any deadlines driving this?
+- Budget or resource constraints?
 
 ---
 
-## Stage 2: STAKEHOLDERS & USERS (Who is involved?)
+## Stage 2: STAKEHOLDERS & USERS
 
 **Goal:** Identify all people affected by this feature.
 
@@ -264,143 +385,71 @@ options:
 **Primary Users:**
 - Who will use this feature daily? (Role, not name)
 - What's their technical comfort level?
-- What devices do they use? (Desktop, mobile, tablet)
-- When/where do they typically work? (Office, field, remote)
+- What devices do they use?
+- When/where do they typically work?
 
 **Secondary Stakeholders:**
 - Who else is affected but won't directly use this?
 - Who needs to approve or sign off?
 - Who will support users if something goes wrong?
 
-**Personas (if needed):**
-- Create 1-2 simple personas based on answers
-- Include: Role, Goal, Frustration, Technical level
-
-### Example Questions:
-
-```
-question: "Who are the primary users of this feature?"
-header: "Users"
-multiSelect: true
-options:
-  - label: "Internal team"
-    description: "Employees within our organization"
-  - label: "External clients"
-    description: "Customers or partners outside our organization"
-  - label: "Admins/managers"
-    description: "People who oversee or configure the system"
-  - label: "End consumers"
-    description: "General public or end users of our product"
-```
-
 ---
 
-## Stage 3: FUNCTIONAL REQUIREMENTS (What should it do?)
+## Stage 3: FUNCTIONAL REQUIREMENTS
 
 **Goal:** Define concrete actions, inputs, outputs, and business logic.
 
 ### Questions to explore:
 
-**Core Actions (use CRUD as a checklist):**
+**Core Actions (CRUD checklist):**
 - Create: What can users create/add?
 - Read: What information do users need to see?
 - Update: What can users modify?
-- Delete: What can users remove? (Soft delete vs hard delete?)
+- Delete: What can users remove?
 
 **Data Requirements:**
-- What information needs to be captured? (Fields)
+- What information needs to be captured?
 - Which fields are required vs optional?
-- What validation rules apply? (Format, range, uniqueness)
-- Where does the data come from? (User input, API, calculation)
+- What validation rules apply?
+- Where does the data come from?
 
 **Business Logic:**
-- Are there any calculations or formulas?
-- Any conditional logic? (If X then Y)
+- Any calculations or formulas?
+- Any conditional logic?
 - Any workflows or approval chains?
-- Any automations or triggers?
 
 **Integrations:**
-- Does this need to connect with other systems?
+- Connect with other systems?
 - Import/export requirements?
-- Notifications (email, SMS, push)?
-
-### Example Questions:
-
-```
-question: "What are the MUST-HAVE actions users need to perform?"
-header: "Core Actions"
-multiSelect: true
-options:
-  - label: "View/browse data"
-    description: "Users need to see and search through information"
-  - label: "Create new entries"
-    description: "Users need to add new records or content"
-  - label: "Edit existing data"
-    description: "Users need to modify information after it's created"
-  - label: "Export/download"
-    description: "Users need to get data out of the system"
-```
+- Notifications?
 
 ---
 
-## Stage 4: UI/UX DESIGN (How should it look and feel?)
+## Stage 4: UI/UX DESIGN
 
 **Goal:** Define the user interface and experience in detail.
 
 ### Questions to explore:
 
 **Layout & Navigation:**
-- Where does this feature live in the app? (New page, modal, sidebar)
-- What's the primary layout? (Table, cards, form, dashboard, wizard)
+- Where does this feature live in the app?
+- What's the primary layout?
 - How do users navigate to this feature?
-- Breadcrumbs or back navigation needed?
 
-**Visual Design:**
-- Any existing patterns to follow? (Design system)
-- Reference designs or inspirations?
-- Branding requirements?
-
-**Responsive Design:**
-- Must work on mobile? Tablet?
-- Different layouts for different screen sizes?
-- Touch-friendly interactions needed?
-
-**Interaction Design:**
-- Drag and drop needed?
-- Inline editing or separate edit mode?
-- Bulk actions (select multiple)?
-- Keyboard shortcuts?
-
-**State Design (CRITICAL - often missed):**
+**State Design (CRITICAL):**
 - **Loading:** What do users see while data loads?
 - **Empty:** What if there's no data yet?
 - **Error:** How are errors displayed?
 - **Success:** How is success confirmed?
-- **Partial:** What if only some data is available?
-- **Offline:** What if network is unavailable?
+- **Locked:** What if another user is editing?
 
-### Visual Sketch Example:
-
-```
-Imagine this layout for a data table:
-
-┌─────────────────────────────────────────────────┐
-│ 🔍 Search...          [Filter ▾]  [+ Add New]   │
-├─────────────────────────────────────────────────┤
-│ ☐ │ Name          │ Status    │ Date    │ ...  │
-│───┼───────────────┼───────────┼─────────┼──────│
-│ ☐ │ Item 1        │ 🟢 Active │ 01/15   │ ⋮    │
-│ ☐ │ Item 2        │ 🟡 Pending│ 01/14   │ ⋮    │
-├─────────────────────────────────────────────────┤
-│ ◀ 1 2 3 ... 10 ▶           Showing 1-20 of 156 │
-└─────────────────────────────────────────────────┘
-
-What's missing from this sketch?
-```
+**Responsive Design:**
+- Must work on mobile? Tablet?
+- Different layouts for different screens?
 
 ---
 
-## Stage 5: EDGE CASES & ERROR HANDLING (What could go wrong?)
+## Stage 5: EDGE CASES & ERROR HANDLING
 
 **Goal:** Anticipate and handle exceptional situations.
 
@@ -408,128 +457,53 @@ What's missing from this sketch?
 
 **Permission & Access:**
 - What if user doesn't have permission?
-- Different permission levels? (View-only, edit, admin)
-- What's visible vs hidden based on role?
-
-**Data Edge Cases:**
-- What if required data is missing?
-- What if data is invalid or corrupted?
-- Maximum limits? (Characters, file size, records)
-- Duplicate handling?
+- Different permission levels?
 
 **Concurrency:**
 - What if two users edit the same thing?
 - Locking mechanism needed?
-- Real-time sync or manual refresh?
 
-**Network & Performance:**
-- Behavior with slow connection?
-- Behavior when offline?
-- Timeout handling?
-- Large dataset handling? (1000+ records)
+**Data Edge Cases:**
+- What if required data is missing?
+- Maximum limits?
+- Duplicate handling?
 
 **User Errors:**
 - Undo/redo capabilities?
 - Confirmation for destructive actions?
 - Auto-save or manual save?
-- Recovery from mistakes?
-
-**System Failures:**
-- Graceful degradation strategy?
-- Retry logic?
-- Error logging and alerting?
-
-### Example Questions:
-
-```
-question: "What should happen if a user tries to edit something another user is currently editing?"
-header: "Concurrent Edit"
-options:
-  - label: "Lock while editing (Recommended)"
-    description: "Only one person can edit at a time - simplest and prevents data loss"
-  - label: "Last save wins"
-    description: "Whoever saves last overwrites - risky but no blocking"
-  - label: "Show conflict"
-    description: "Alert users to resolve manually - most control but complex UX"
-  - label: "Merge changes"
-    description: "Auto-combine changes - technically complex, can cause surprises"
-```
 
 ---
 
-## Stage 6: NON-FUNCTIONAL REQUIREMENTS (Quality attributes)
+## Stage 6: NON-FUNCTIONAL REQUIREMENTS
 
 **Goal:** Define performance, security, and quality expectations.
 
 ### Questions to explore:
 
 **Performance:**
-- Acceptable page load time? (< 2 sec is standard)
-- How many concurrent users expected?
-- Data volume expectations? (Now vs 1 year from now)
-- Any real-time requirements?
+- Acceptable page load time?
+- Concurrent users expected?
+- Data volume expectations?
 
 **Security:**
-- Sensitivity of data? (PII, financial, health)
+- Sensitivity of data?
 - Authentication requirements?
 - Audit trail needed?
-- Data retention/deletion policies?
-
-**Reliability:**
-- Uptime expectations? (99.9% = 8.7 hours downtime/year)
-- Backup/recovery requirements?
-- Disaster recovery considerations?
 
 **Accessibility:**
-- WCAG compliance level needed?
+- WCAG compliance level?
 - Screen reader support?
 - Keyboard navigation?
-- Color contrast requirements?
 
 **Compliance:**
-- Regulatory requirements? (GDPR, HIPAA, SOX, KVKK)
-- Industry standards?
-- Internal policies?
-
-### Example Questions (adapt to tech level):
-
-**For Non-technical:**
-```
-question: "How critical is this feature to daily operations?"
-header: "Criticality"
-options:
-  - label: "Important (Recommended)"
-    description: "Most features fall here - significant but not catastrophic if down"
-  - label: "Nice to have"
-    description: "Work continues without it, just less convenient"
-  - label: "Business critical"
-    description: "Operations stop if this doesn't work - requires extra reliability"
-  - label: "Safety critical"
-    description: "Could cause harm or legal issues - needs rigorous testing"
-```
-
-**For Technical:**
-```
-question: "What are your performance SLAs?"
-header: "Performance"
-options:
-  - label: "Standard web (Recommended)"
-    description: "< 2s page load, 100 concurrent users - sufficient for most apps"
-  - label: "High performance"
-    description: "< 500ms response, 1000+ concurrent - needs optimization focus"
-  - label: "Real-time"
-    description: "< 100ms latency, WebSocket/SSE - complex infrastructure"
-  - label: "Define specific"
-    description: "I have specific numbers in mind"
-```
+- Regulatory requirements? (GDPR, HIPAA, KVKK)
 
 ---
 
-## Stage 7: TECHNICAL ARCHITECTURE (How will it be built?)
+## Stage 7: TECHNICAL ARCHITECTURE
 
 **ALWAYS ask this stage - adapt explanation depth to tech level.**
-
-For non-technical users: Use ELI5 analogies and plain language. Let them make informed decisions with your expert recommendations.
 
 **Goal:** Capture implementation preferences and constraints.
 
@@ -538,52 +512,21 @@ For non-technical users: Use ELI5 analogies and plain language. Let them make in
 **Data Storage:**
 - New tables/collections needed?
 - Relationship to existing data?
-- Indexing requirements?
 - Caching strategy?
 
 **API Design:**
-- RESTful or GraphQL?
 - New endpoints needed?
 - Rate limiting?
-- Versioning?
-
-**Frontend:**
-- Client-side or server-side rendering?
-- State management approach?
-- Component reuse opportunities?
 
 **Integration:**
 - Third-party services?
-- Authentication/authorization flow?
-- Webhook requirements?
-- Message queues?
+- Authentication flow?
 
-**DevOps:**
-- Feature flags needed?
-- A/B testing requirements?
-- Monitoring and alerting?
-- Deployment strategy?
-
-### For Non-technical users
-Use ELI5 analogies and provide recommendations:
-
-```
-question: "Think of your data like a filing cabinet. How should we organize it?"
-header: "Data Storage"
-options:
-  - label: "One big cabinet (Recommended)"
-    description: "All data in one place - simpler to maintain, good for most cases"
-  - label: "Separate cabinets by type"
-    description: "Different storage for different data - more complex but better for large scale"
-  - label: "Let the team decide"
-    description: "I trust the developers to choose the best approach"
-```
-
-Always include a "Let the team decide" option, but provide your expert recommendation marked with "(Recommended)".
+**For Non-technical users:** Use ELI5 analogies, include "Let the team decide" option.
 
 ---
 
-## Stage 8: PRIORITIZATION & PHASING (What comes first?)
+## Stage 8: PRIORITIZATION & PHASING
 
 **Goal:** Break down into manageable phases if needed.
 
@@ -592,39 +535,12 @@ Always include a "Let the team decide" option, but provide your expert recommend
 **MoSCoW Prioritization:**
 - Must have: Core functionality for MVP
 - Should have: Important but not blocking
-- Could have: Nice additions if time permits
-- Won't have: Explicitly out of scope (for now)
-
-**Phasing:**
-- If complex (5+ requirements, 2+ screens), suggest phases
-- What's the MVP (minimum viable product)?
-- What can be added in v2, v3?
+- Could have: Nice additions
+- Won't have: Explicitly out of scope
 
 **Dependencies:**
 - What must exist before this can be built?
 - What other features depend on this?
-- External dependencies? (APIs, data, approvals)
-
-**Timeline:**
-- Any hard deadlines?
-- Preferred release date?
-- Iterative releases or big bang?
-
-### Example Questions:
-
-```
-question: "If we had to launch in 2 weeks with limited scope, what's the ONE thing this feature must do?"
-header: "MVP Core"
-options:
-  - label: "Option A"
-    description: "[First core action identified earlier]"
-  - label: "Option B"
-    description: "[Second core action identified earlier]"
-  - label: "Both A and B"
-    description: "Can't launch without both of these"
-  - label: "Something else"
-    description: "The core is different from what we discussed"
-```
 
 ---
 
@@ -633,34 +549,33 @@ options:
 After completing all interview stages:
 
 ### 1. Summarize Key Decisions
-Present a summary table of all major decisions:
+
+Present a summary table:
 
 ```
 | Area | Decision | Notes |
 |------|----------|-------|
 | Users | Internal finance team | Desktop-first |
 | Core action | Export to Excel | Daily use case |
-| Layout | Data table with filters | Similar to existing reports |
-| Edge case | Show "locked" badge | Prevent concurrent edits |
+| Layout | Data table with filters | Similar to existing |
 | MVP | Export + basic filters | v2 adds scheduling |
 ```
 
 ### 2. Identify Conflicts or Gaps
+
 Flag any:
 - Contradictory requirements
 - Unanswered questions
-- Assumptions that need validation
-- Dependencies not yet resolved
+- Assumptions needing validation
 
-### 3. Confirm Before Writing
-Ask user to confirm the summary before writing the spec:
+### 3. Confirm Before Validation
 
 ```
 question: "Does this summary accurately capture what we discussed?"
 header: "Confirm"
 options:
-  - label: "Yes, write the spec"
-    description: "Summary is accurate, please create the document"
+  - label: "Yes, proceed to validation"
+    description: "Summary is accurate, let's validate against best practices"
   - label: "Minor adjustments"
     description: "A few small corrections needed first"
   - label: "Major changes"
@@ -669,301 +584,257 @@ options:
 
 ---
 
+## Phase: VALIDATION (NEW in v3)
+
+**Run AFTER 100% mutual understanding is achieved, BEFORE writing the spec.**
+
+### Purpose
+
+Check the gathered requirements against industry best practices to catch commonly missed items. This is NOT about re-asking interview questions — it's about ensuring completeness.
+
+### Process
+
+1. Load the validation checklist from `references/validation-checklist.md`
+2. For each category, check if the topic was covered during interview
+3. Mark status: ✅ COVERED | ⚠️ PARTIAL | ❌ MISSING
+4. Focus on **CRITICAL** severity items
+
+### Validation Categories (14 total)
+
+1. Problem & Vision
+2. Users & Stakeholders
+3. Functional Requirements
+4. Data
+5. Integrations
+6. UI/UX
+7. UI States (often missed!)
+8. Edge Cases
+9. Error Handling
+10. User Actions
+11. Non-Functional: Performance
+12. Non-Functional: Security
+13. Non-Functional: Accessibility & Compliance
+14. Often Missed Items
+
+### Present Validation Results
+
+```
+VALIDATION COMPLETE
+
+Coverage by category:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Problem & Vision (5/5)
+✅ Users & Stakeholders (4/4)
+⚠️ Functional Requirements (5/6)
+   └─ Missing: automations/triggers
+✅ Data (6/6)
+❌ UI States (2/7)
+   └─ Missing: empty state, error state, offline state
+...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{N} items not covered. How to proceed?
+
+[1] Add them now (ask about each gap)
+[2] Mark as out-of-scope (document in spec)
+[3] Pick which ones to add
+[4] Skip validation (write spec as-is)
+```
+
+### Handling Gaps
+
+If user chooses to add missing items, ask focused questions ONLY for the gaps. Don't re-interview already-covered topics.
+
+---
+
+## Phase: OUTPUT OPTIONS
+
+**Before writing the spec, determine where and how to save.**
+
+### 1. Complexity Analysis
+
+Calculate complexity score based on gathered requirements:
+
+| Metric | Low | Medium | High |
+|--------|-----|--------|------|
+| Requirements count | 1-5 | 6-10 | 11+ |
+| Screens/components | 1-2 | 3-4 | 5+ |
+| External integrations | 0-1 | 2 | 3+ |
+| Business logic rules | 1-3 | 4-6 | 7+ |
+| User roles | 1 | 2 | 3+ |
+
+**Complexity Score Formula:**
+```
+Score = (requirements × 1) + (screens × 2) + (integrations × 3) + (logic_rules × 1.5) + (user_roles × 1)
+
+Low: Score < 15
+Medium: Score 15-30
+High: Score > 30
+```
+
+### 2. Split Recommendation (if HIGH complexity)
+
+```
+⚠️ COMPLEXITY ANALYSIS
+
+This feature scores HIGH on complexity:
+• 12 requirements
+• 4 screens
+• 3 integrations
+• Score: 34/30 threshold
+
+Single-phase implementation risks:
+• Difficult code review
+• Hard to test thoroughly
+• Debugging challenges
+
+Recommended split:
+
+Option A - By Priority:
+├── Phase 3a: MVP (core CRUD, basic UI)
+├── Phase 3b: Integrations (API connections)
+└── Phase 3c: Polish (edge cases, UX improvements)
+
+Option B - By Component:
+├── Phase 3a: Backend (API, database, logic)
+├── Phase 3b: Frontend (UI, components, states)
+└── Phase 3c: Integration (connect frontend to backend)
+
+[1] Split by priority (Recommended)
+[2] Split by component
+[3] Custom split
+[4] Keep as single phase
+```
+
+### 3. Save Location
+
+**If file was provided (FILE MODE):**
+```
+question: "Where should I save the updated spec?"
+header: "Save"
+options:
+  - label: "Update original file (Recommended)"
+    description: "Overwrite the file you provided with the complete spec"
+  - label: "Create new file"
+    description: "Save as a new file, keep original unchanged"
+  - label: "Let me specify"
+    description: "I'll provide a custom path"
+```
+
+**If splitting:**
+```
+Original: docs/phase-3.md
+
+Split options:
+- Suffix: phase-3a.md, phase-3b.md, phase-3c.md
+- Descriptive: phase-3-mvp.md, phase-3-integrations.md
+```
+
+**If IDEA MODE:**
+```
+question: "Where should I save the spec document?"
+header: "Save Location"
+options:
+  - label: "docs/specs/[feature-name].md (Recommended)"
+    description: "Standard location for spec documents"
+  - label: "Current directory"
+    description: "Save in the current working directory"
+  - label: "Let me specify"
+    description: "I'll provide a custom path"
+```
+
+---
+
 ## Phase: WRITE SPEC
 
-Write the specification document using this comprehensive template:
-
-```markdown
-# [Feature Name]
-
-> **Status:** Draft | In Review | Approved
-> **Author:** [Name]
-> **Last Updated:** [Date]
-> **Version:** 1.0
-
----
-
-## 1. Executive Summary
-
-[2-3 sentence overview of what this feature does and why it matters]
-
-**Success Metrics:**
-- [Metric 1]: [Target]
-- [Metric 2]: [Target]
-
----
-
-## 2. Problem Statement
-
-### Current State
-[How things work today / the pain point]
-
-### Desired State
-[How things should work after this feature]
-
-### Cost of Inaction
-[What happens if we don't build this]
-
----
-
-## 3. User Personas
-
-### Primary: [Role Name]
-- **Goals:** [What they want to achieve]
-- **Frustrations:** [Current pain points]
-- **Tech Level:** [Non-technical / Somewhat / Very]
-- **Usage:** [Daily / Weekly / Monthly]
-
-### Secondary: [Role Name] (if applicable)
-[Same format]
-
----
-
-## 4. User Stories
-
-### Must Have (P0)
-- [ ] As a [role], I want to [action] so that [benefit]
-- [ ] As a [role], I want to [action] so that [benefit]
-
-### Should Have (P1)
-- [ ] As a [role], I want to [action] so that [benefit]
-
-### Could Have (P2)
-- [ ] As a [role], I want to [action] so that [benefit]
-
-### Out of Scope
-- [Explicitly excluded item 1]
-- [Explicitly excluded item 2]
-
----
-
-## 5. Functional Requirements
-
-### 5.1 Core Features
-
-| ID | Requirement | Priority | Acceptance Criteria |
-|----|-------------|----------|---------------------|
-| FR-1 | [Description] | P0 | [How to verify] |
-| FR-2 | [Description] | P0 | [How to verify] |
-
-### 5.2 Data Requirements
-
-| Field | Type | Required | Validation | Source |
-|-------|------|----------|------------|--------|
-| [name] | [type] | Yes/No | [rules] | [where from] |
-
-### 5.3 Business Logic
-
-```
-IF [condition]
-THEN [action]
-ELSE [alternative]
-```
-
-### 5.4 Integrations
-
-| System | Type | Purpose | Notes |
-|--------|------|---------|-------|
-| [Name] | Import/Export/API | [Why] | [Details] |
-
----
-
-## 6. UI/UX Specifications
-
-### 6.1 Information Architecture
-
-[Where this feature lives in the navigation]
-
-### 6.2 Layout
-
-```
-[ASCII diagram or description]
-```
-
-### 6.3 Component Specifications
-
-| Component | Behavior | Notes |
-|-----------|----------|-------|
-| [Name] | [How it works] | [Details] |
-
-### 6.4 States
-
-| State | Trigger | Display | User Action |
-|-------|---------|---------|-------------|
-| Loading | Data fetching | Skeleton/spinner | Wait |
-| Empty | No data exists | Empty state message + CTA | Create first item |
-| Error | Request failed | Error message | Retry/contact support |
-| Success | Action completed | Toast notification | Dismiss/continue |
-| Locked | Another user editing | Lock badge + message | Wait or notify |
-
-### 6.5 Responsive Behavior
-
-| Breakpoint | Layout Changes |
-|------------|----------------|
-| Desktop (>1024px) | [Default layout] |
-| Tablet (768-1024px) | [Adjustments] |
-| Mobile (<768px) | [Mobile layout] |
-
----
-
-## 7. Edge Cases & Error Handling
-
-| Scenario | Expected Behavior | Error Message |
-|----------|-------------------|---------------|
-| [Edge case 1] | [How system responds] | [User-facing message] |
-| [Edge case 2] | [How system responds] | [User-facing message] |
-
----
-
-## 8. Non-Functional Requirements
-
-### Performance
-- Page load time: < [X] seconds
-- API response time: < [X] ms
-- Concurrent users supported: [N]
-
-### Security
-- Authentication: [Required/Not required]
-- Authorization: [Role-based access details]
-- Audit logging: [Yes/No, what's logged]
-- Data sensitivity: [Public/Internal/Confidential/Restricted]
-
-### Accessibility
-- WCAG Level: [A/AA/AAA]
-- Keyboard navigation: [Required/Not required]
-- Screen reader support: [Required/Not required]
-
-### Compliance
-- [Regulation]: [Requirement]
-
----
-
-## 9. Technical Notes
-
-[Implementation guidance for developers - only if technical interview was conducted]
-
-### Suggested Approach
-- [Technical recommendation 1]
-- [Technical recommendation 2]
-
-### Known Constraints
-- [Constraint 1]
-- [Constraint 2]
-
----
-
-## 10. Dependencies
-
-### Requires Before Start
-- [ ] [Dependency 1]
-- [ ] [Dependency 2]
-
-### Blocks Other Work
-- [What this feature unblocks]
-
----
-
-## 11. Phasing (if applicable)
-
-### Phase 1: MVP ([Target Date])
-- [Scope item 1]
-- [Scope item 2]
-
-### Phase 2: Enhancement ([Target Date])
-- [Scope item 1]
-- [Scope item 2]
-
----
-
-## 12. Open Questions
-
-| Question | Owner | Due Date | Status |
-|----------|-------|----------|--------|
-| [Question] | [Who decides] | [When] | Open/Resolved |
-
----
-
-## 13. Appendix
-
-### A. Glossary
-- **[Term]:** [Definition]
-
-### B. References
-- [Link to related doc]
-- [Link to design mockup]
-
-### C. Revision History
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | [Date] | [Name] | Initial draft |
-```
+Write the specification document using the comprehensive template.
+
+**Template:** Read `references/spec-template.md` for the full specification document template.
+
+The template includes 14 sections:
+1. Executive Summary
+2. Problem Statement
+3. User Personas
+4. User Stories (MoSCoW prioritized)
+5. Functional Requirements
+6. UI/UX Specifications
+7. Edge Cases & Error Handling
+8. Non-Functional Requirements
+9. Assumptions & Constraints
+10. Technical Notes
+11. Dependencies
+12. Phasing
+13. Open Questions
+14. Appendix
 
 ---
 
 ## Interview Best Practices
 
 ### DO:
-- **PURSUE 100% CLARITY** - Never settle for "good enough" understanding
-- **LOOP ON AMBIGUITY** - Ask follow-ups until crystal clear, even if it takes 20 questions
-- Ask "Why?" multiple times (5 Whys technique)
-- Use concrete scenarios: "Imagine you're doing X, then Y happens..."
-- Reference existing app patterns: "Similar to how [feature] works..."
-- Validate understanding: "So if I understand correctly..."
-- Dig into edge cases: "What if...?"
-- Adapt language to technical level - no jargon for non-technical users
-- **PROVIDE RECOMMENDATIONS** - You're the expert, share your opinion on every question
+- **PURSUE 100% CLARITY** - Never settle for "good enough"
+- **LOOP ON AMBIGUITY** - Ask follow-ups until crystal clear
+- **BE SMART** - Don't ask about clearly defined items
+- Use "Why?" multiple times (5 Whys technique)
+- Use concrete scenarios
+- Reference existing app patterns
+- Validate understanding frequently
+- Dig into edge cases
+- Adapt language to technical level
+- **PROVIDE RECOMMENDATIONS** - Share your expert opinion
 
 ### DON'T:
-- **NEVER ASSUME** - If unclear, ASK. Don't fill in gaps yourself.
-- **NEVER RUSH** - Quality of understanding > speed of completion
-- **NEVER SKIP** - Every ambiguity must be resolved before moving on
+- **NEVER ASSUME** - If unclear, ASK
+- **NEVER RUSH** - Quality > speed
+- **NEVER SKIP** - Every ambiguity must be resolved
+- **NEVER RE-ASK** - Don't ask about clearly defined items
 - Ask questions already answered
 - Overwhelm with options (max 4 per question)
-- Use unexplained acronyms or jargon
-- Skip edge cases - they reveal 80% of bugs
-- Be condescending when explaining concepts
-- Ask questions just to ask - every question must serve understanding
+- Use unexplained jargon
+- Be condescending when explaining
 
 ---
 
-## Execution Flow
+## Quick Reference: Execution Flow
 
-**Input received:** `$1`
-
-### Step 1: Detect Mode
-- FILE MODE: Verify file exists → Read and analyze
-- IDEA MODE: Parse the idea description
-
-### Step 2: Detect Language
-- Check for language keywords in input (turkish, german, spanish, etc.)
-- Auto-detect from input text if written in non-English
-- Default to English if unclear
-
-### Step 3: Calibration (Phase 0)
-- Ask technical proficiency level FIRST
-- Confirm understanding of the feature/idea
-
-### Step 4: Interview Stages (1-8)
-- Progress through each stage methodically
-- Adapt question depth to tech level
-- Stage 7 (Technical): Use ELI5 for non-technical users, never skip
-- **NO QUESTION LIMIT** - Ask as many as needed for 100% clarity
-- **LOOP IF NEEDED** - Stay in a stage until fully understood
-- **NEVER SKIP AMBIGUITY** - Clarify immediately, don't assume
-- ALWAYS include your recommendation marked with "(Recommended)"
-- Do NOT proceed to next stage until current stage is 100% clear
-
-### Step 5: Synthesis
-- Summarize decisions in a table
-- Flag conflicts or gaps
-- Get user confirmation
-
-### Step 6: Write Spec
-- Use the comprehensive template
-- Include all gathered information
-- Mark open questions clearly
-
-### Step 7: Save
-- FILE MODE: Update existing file
-- IDEA MODE: Ask where to save, then create file
-
+```
+Input: $1 (file path OR idea)
+│
+├─ Step 1: Detect Mode (FILE or IDEA)
+│
+├─ Step 2: Detect Language (auto)
+│
+├─ Step 3: Calibration
+│   ├─ Tech proficiency assessment
+│   └─ Confirm understanding
+│
+├─ Step 4: Pre-Interview Analysis (FILE MODE only)
+│   ├─ Classify stages: CLEAR / UNCLEAR / MISSING
+│   ├─ Show auto-accepted items
+│   └─ Get approval to proceed
+│
+├─ Step 5: Context Scanning (if needed)
+│   └─ Scan project files for stack/patterns
+│
+├─ Step 6: Interview Stages (1-8)
+│   ├─ SKIP stages marked CLEAR
+│   ├─ TARGETED questions for UNCLEAR
+│   └─ FULL interview for MISSING
+│
+├─ Step 7: Synthesis
+│   ├─ Summarize decisions
+│   └─ Confirm 100% understanding
+│
+├─ Step 8: Validation
+│   ├─ Run 14-category checklist
+│   ├─ Present gaps
+│   └─ Let user decide what to add
+│
+├─ Step 9: Output Options
+│   ├─ Complexity analysis
+│   ├─ Split recommendation if HIGH
+│   └─ Choose save location
+│
+└─ Step 10: Write Spec
+    └─ Generate document using template
+```

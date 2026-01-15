@@ -1,69 +1,50 @@
 # PR Patrol
 
-A Claude Code plugin for handling PR bot comments (CodeRabbit, Greptile, Copilot, Codex, Sentry) with batch validation and a structured 7-gate workflow.
+Handles PR review bot comments through a structured workflow. Collects comments from CodeRabbit, Greptile, Copilot, Codex, and Sentry — validates them, applies fixes, and posts appropriate replies.
 
-## Features
+## How It Works
 
-- **Batch Validation** — Validate multiple bot comments in parallel using specialized agents
-- **7-Gate Workflow** — Structured process with user approval at each step
-- **State Persistence** — Track progress across multiple review cycles
-- **Bot-Specific Protocols** — Correct reply format and reaction handling per bot
-- **False Positive Detection** — Identify and dismiss incorrect suggestions
+```
+/pr-patrol 123
+```
+
+1. **Collect** — Fetches all bot comments from the PR
+2. **Validate** — Checks each comment against the actual code (parallel processing)
+3. **Fix** — Designs and applies fixes for valid issues
+4. **Commit** — Creates a commit with all changes
+5. **Reply** — Posts replies to each bot in their expected format
+6. **Push** — Pushes changes and checks for new comments
+
+Each step requires your approval before proceeding.
 
 ## Supported Bots
 
-| Bot | Reply | Reaction | Notes |
-|-----|-------|----------|-------|
-| CodeRabbit | ✅ | ❌ | Reply only |
-| Greptile | ✅ | ✅ | Reaction first, then reply |
-| Copilot | ❌ | ❌ | Silent fix only |
-| Codex | ✅ | ✅ | Reaction first, then reply |
-| Sentry | ✅ | ✅ | Reaction first, then reply |
+| Bot | How It's Handled |
+|-----|------------------|
+| CodeRabbit | Reply to resolve |
+| Greptile | React 👍 then reply |
+| Copilot | Silent fix (no reply needed) |
+| Codex | React then reply |
+| Sentry | React then reply |
 
-**Ignored:** `vercel[bot]`, `dependabot[bot]`, `renovate[bot]`, `github-actions[bot]`
+Deployment bots (Vercel, Dependabot, Renovate) are automatically ignored.
 
 ## Prerequisites
 
-- **Linux only** — Scripts use GNU coreutils (macOS/Windows not supported)
-- [GitHub CLI](https://cli.github.com/) (`gh`) — authenticated
-- [jq](https://jqlang.github.io/jq/) — version 1.6+
-- Bash 4.0+
+- GitHub CLI (`gh`) — authenticated with your account
+- jq 1.6+
+- GNU coreutils — built-in on Linux, `brew install coreutils` on macOS
 
 ## Installation
 
 ```bash
-claude plugin marketplace add SmartOzzehir/pr-patrol
-claude plugin install pr-patrol@SmartOzzehir
+/plugin marketplace add SmartOzzehir/smart-plugins
+/plugin install pr-patrol
 ```
 
-## Usage
+## State Tracking
 
-```bash
-/pr-patrol [PR-number]    # Process bot comments
-/pr-patrol:update         # Update plugin to latest version
-```
-
-If no PR number is provided, auto-detects from current branch.
-
-### Workflow
-
-```
-Gate 0: Init      → Detect PR, create/load state file
-Gate 1: Collect   → Fetch all bot comments
-Gate 2: Validate  → Run validation agents in parallel
-Gate 3: Fix       → Design and apply fixes
-Gate 4: Commit    → Review changes, create commit
-Gate 5: Reply     → Post replies to bots
-Gate 6: Push      → Push to remote, check for new comments
-```
-
-### State Tracking
-
-Progress is tracked in `.claude/bot-reviews/PR-{number}.md`:
-
-```
-initialized → collected → validated → fixes_planned → fixes_applied → checks_passed → committed → replies_sent → pushed
-```
+Progress is saved to `.claude/bot-reviews/PR-{number}.md` so you can resume interrupted sessions.
 
 ## License
 
