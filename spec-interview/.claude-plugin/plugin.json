@@ -1,6 +1,6 @@
 {
   "name": "spec-interview",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "description": "Smart requirements interview with pre-analysis, adaptive questioning, validation, and complexity analysis",
   "author": {
     "name": "SmartOzzehir",

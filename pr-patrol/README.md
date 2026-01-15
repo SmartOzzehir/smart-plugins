@@ -1,71 +1,54 @@
 # PR Patrol
 
-A Claude Code plugin for handling PR bot comments (CodeRabbit, Greptile, Copilot, Codex, Sentry) with batch validation and a structured 7-gate workflow.
+Handle PR bot comments (CodeRabbit, Greptile, Copilot, Codex, Sentry) with batch validation and a 7-gate workflow.
 
 ## Features
 
-- **Batch Validation** — Validate multiple bot comments in parallel using specialized agents
+- **Batch Validation** — Validate multiple bot comments in parallel
 - **7-Gate Workflow** — Structured process with user approval at each step
-- **State Persistence** — Track progress across multiple review cycles
-- **Bot-Specific Protocols** — Correct reply format and reaction handling per bot
-- **False Positive Detection** — Identify and dismiss incorrect suggestions
+- **State Persistence** — Track progress across review cycles
+- **Bot-Specific Protocols** — Correct reply format per bot
 
 ## Supported Bots
 
-| Bot | Reply | Reaction | Notes |
-|-----|-------|----------|-------|
-| CodeRabbit | ✅ | ❌ | Reply only |
-| Greptile | ✅ | ✅ | Reaction first, then reply |
-| Copilot | ❌ | ❌ | Silent fix only |
-| Codex | ✅ | ✅ | Reaction first, then reply |
-| Sentry | ✅ | ✅ | Reaction first, then reply |
-
-**Ignored:** `vercel[bot]`, `dependabot[bot]`, `renovate[bot]`, `github-actions[bot]`
+| Bot | Reply | Reaction |
+|-----|-------|----------|
+| CodeRabbit | ✅ | ❌ |
+| Greptile | ✅ | ✅ |
+| Copilot | ❌ | ❌ |
+| Codex | ✅ | ✅ |
+| Sentry | ✅ | ✅ |
 
 ## Prerequisites
 
-- **GNU coreutils required** (for `date` command)
-  - **Linux**: Built-in, works out of the box
-  - **macOS**: `brew install coreutils` (provides `gdate`)
-  - **Windows**: Use WSL (Windows Subsystem for Linux)
 - [GitHub CLI](https://cli.github.com/) (`gh`) — authenticated
-- [jq](https://jqlang.github.io/jq/) — version 1.6+
-- Bash 4.0+
+- [jq](https://jqlang.github.io/jq/) 1.6+
+- GNU coreutils (macOS: `brew install coreutils`)
 
 ## Installation
 
 ```bash
-claude plugin marketplace add SmartOzzehir/pr-patrol
-claude plugin install pr-patrol@SmartOzzehir
+/plugin marketplace add SmartOzzehir/smart-plugins
+/plugin install pr-patrol
 ```
 
 ## Usage
 
 ```bash
-/pr-patrol [PR-number]    # Process bot comments
-/pr-patrol:update         # Update plugin to latest version
+/pr-patrol           # Auto-detect PR from branch
+/pr-patrol 123       # Specific PR number
 ```
 
-If no PR number is provided, auto-detects from current branch.
-
-### Workflow
+## Workflow
 
 ```
-Gate 0: Init      → Detect PR, create/load state file
-Gate 1: Collect   → Fetch all bot comments
-Gate 2: Validate  → Run validation agents in parallel
+Gate 0: Init      → Detect PR, load state
+Gate 1: Collect   → Fetch bot comments
+Gate 2: Validate  → Check which are real issues
 Gate 3: Fix       → Design and apply fixes
-Gate 4: Commit    → Review changes, create commit
+Gate 4: Commit    → Create commit
 Gate 5: Reply     → Post replies to bots
-Gate 6: Push      → Push to remote, check for new comments
-```
-
-### State Tracking
-
-Progress is tracked in `.claude/bot-reviews/PR-{number}.md`:
-
-```
-initialized → collected → validated → fixes_planned → fixes_applied → checks_passed → committed → replies_sent → pushed
+Gate 6: Push      → Push and check for new comments
 ```
 
 ## License

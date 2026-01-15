@@ -55,6 +55,8 @@ Language is auto-detected from user input. Supports 12+ languages including Turk
 
 ## Execution Flow Overview
 
+**Terminology:** "Phase" = workflow steps, "Stage" = interview question categories (1-8).
+
 ```
 1. Calibration (Phase 0)
    └─ Tech level + initial understanding
@@ -663,7 +665,7 @@ Calculate complexity score based on gathered requirements:
 
 **Complexity Score Formula:**
 ```
-Score = (requirements × 1) + (screens × 2) + (integrations × 3) + (logic_rules × 1.5)
+Score = (requirements × 1) + (screens × 2) + (integrations × 3) + (logic_rules × 1.5) + (user_roles × 1)
 
 Low: Score < 15
 Medium: Score 15-30

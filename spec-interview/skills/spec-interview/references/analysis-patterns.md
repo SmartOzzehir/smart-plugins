@@ -226,7 +226,7 @@ After interview complete, analyze complexity:
 ### Complexity Score
 
 ```
-Score = (requirements × 1) + (screens × 2) + (integrations × 3) + (logic_rules × 1.5)
+Score = (requirements × 1) + (screens × 2) + (integrations × 3) + (logic_rules × 1.5) + (user_roles × 1)
 
 Low: Score < 15
 Medium: Score 15-30

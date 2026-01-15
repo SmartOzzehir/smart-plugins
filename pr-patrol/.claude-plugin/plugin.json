@@ -1,6 +1,6 @@
 {
   "name": "pr-patrol",
-  "version": "1.4.1",
+  "version": "1.0.0",
   "description": "Handle PR bot comments with batch validation and 7-gate workflow",
   "author": {
     "name": "SmartOzzehir",
