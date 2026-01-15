@@ -29,7 +29,7 @@ plugin-name/
 
 ### pr-patrol
 
-**Platform:** Linux only (GNU coreutils dependency)
+**Platform:** Linux, macOS (`brew install coreutils`), Windows (WSL)
 
 **Prerequisites:** `gh` (GitHub CLI), `jq` 1.6+, Bash 4.0+
 
