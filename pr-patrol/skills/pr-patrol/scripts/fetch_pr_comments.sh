@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # fetch_pr_comments.sh - Comment fetcher for pr-patrol skill
 # Usage: ./fetch_pr_comments.sh <owner> <repo> <pr_number>
 #

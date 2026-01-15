@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # update_billboard.sh
 # Updates the state file billboard section after each gate
