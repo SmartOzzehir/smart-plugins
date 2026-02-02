@@ -38,21 +38,23 @@ if [[ -z "$SINCE" ]]; then
   }
 fi
 
+# Temporary files for error capture
+DATE_STDERR=$(mktemp)
+STDERR_FILE=$(mktemp)
+trap 'rm -f "$DATE_STDERR" "$STDERR_FILE"' EXIT INT TERM
+
 # CRITICAL: Normalize timestamp to UTC for consistent comparison
 # GitHub API returns timestamps in UTC (Z suffix)
 # But local timestamps may have timezone offset (+03:00)
 # String comparison fails: "11:30Z" vs "14:22+03:00" → 11 < 14 (WRONG!)
-DATE_STDERR=$(mktemp)
 if SINCE_NORMALIZED=$($DATE_CMD -u -d "$SINCE" +"%Y-%m-%dT%H:%M:%SZ" 2>"$DATE_STDERR"); then
   SINCE="$SINCE_NORMALIZED"
 else
-  echo "Warning: Could not normalize timestamp '$SINCE' ($(cat "$DATE_STDERR")), using as-is" >&2
+  echo "Error: Could not normalize timestamp '$SINCE' to UTC ($(cat "$DATE_STDERR"))." >&2
+  echo "String-based timestamp comparison will produce wrong results with timezone offsets." >&2
+  echo "Ensure GNU date is available and the timestamp format is valid." >&2
+  exit 1
 fi
-rm -f "$DATE_STDERR"
-
-# Temporary file for error capture
-STDERR_FILE=$(mktemp)
-trap 'rm -f "$STDERR_FILE"' EXIT
 
 # Fetch PR review comments with error handling
 if ! PR_COMMENTS=$(gh api "repos/$OWNER/$REPO/pulls/$PR/comments" --paginate 2>"$STDERR_FILE"); then
@@ -98,10 +100,11 @@ def is_acknowledgment:
     (length < 50 and test("thanks|good|great|perfect"; "i"))
   );
 
-add |
+(add // []) |
 
 # Get all comments with metadata
 [.[] |
+  select(.user != null and .user.login != null) |
   select(.user.login | is_ignored_bot | not) |
   select(.user.type == "Bot" or (.user.login | is_review_bot)) |
   select(.created_at > $since) |

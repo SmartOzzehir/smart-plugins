@@ -48,6 +48,7 @@ case "$NEXT_GATE" in
   4) GATE_FILE="gate-4-commit.md" ;;
   5) GATE_FILE="gate-5-reply.md" ;;
   6) GATE_FILE="gate-6-push.md" ;;
+  "✓"|done|complete) GATE_FILE="none (cycle complete)" ;;
   *) GATE_FILE="unknown" ;;
 esac
 
@@ -75,17 +76,26 @@ awk -v new_billboard="$NEW_BILLBOARD" '
   in_billboard && /^\| Field/ {
     skip_table = 1
   }
-  in_billboard && skip_table && /^$/ {
+  in_billboard && skip_table && (/^$/ || /^#/ || /^---/) {
     print new_billboard;
     print "";
     skip_table = 0;
     in_billboard = 0;
+    # If line is a heading or separator, still print it
+    if (!/^$/) print;
     next
   }
   in_billboard && skip_table {
     next
   }
   { print }
+  END {
+    # Handle table at end of file with no trailing blank line
+    if (skip_table) {
+      print new_billboard;
+      print "";
+    }
+  }
 ' "$STATE_FILE" > "$TMP_FILE"
 
 # Validate awk output before replacing original
@@ -105,4 +115,4 @@ fi
 mv "$TMP_FILE" "$STATE_FILE"
 trap - EXIT  # Clear the trap since we successfully moved the file
 
-echo "✅ Billboard updated: status=$STATUS, next_gate=$NEXT_GATE"
+echo "✅ Billboard updated: status=$STATUS, next_gate=$NEXT_GATE" >&2

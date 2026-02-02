@@ -19,7 +19,7 @@ case "$TOOL_NAME" in
   Bash)
     COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null || echo "")
     
-    if echo "$COMMAND" | grep -qE 'rm\s+(-rf?|--recursive)?\s*.*\.claude/bot-reviews'; then
+    if echo "$COMMAND" | grep -qE 'rm[[:space:]]+(-rf?|--recursive)?[[:space:]]*.*\.claude/bot-reviews'; then
       echo "BLOCKED: Cannot delete pr-patrol state files (.claude/bot-reviews/)." >&2
       echo "These files track workflow progress. Delete manually if absolutely necessary." >&2
       exit 2

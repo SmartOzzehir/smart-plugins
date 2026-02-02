@@ -84,22 +84,12 @@ Update status: `fixes_applied`
 
 These checks are **MANDATORY** - block on failure:
 
-```bash
-# Typecheck - MUST PASS
-pnpm typecheck
-if [ $? -ne 0 ]; then
-  echo "🚨 BLOCKED: Typecheck failed. Must fix before proceeding."
-  # DO NOT PROCEED - fix the type errors first
-fi
+Detect the project's toolchain from `package.json` scripts, then run:
 
-# Lint with auto-fix - MUST PASS
-pnpm biome check --write src/
-pnpm lint
-if [ $? -ne 0 ]; then
-  echo "🚨 BLOCKED: Lint failed. Must fix before proceeding."
-  # DO NOT PROCEED - fix the lint errors first
-fi
-```
+1. **Typecheck** — e.g., `pnpm typecheck`, `npm run typecheck`, `npx tsc --noEmit`
+2. **Lint with auto-fix** — e.g., `pnpm lint --fix`, `npx biome check --write src/`, `npx eslint --fix .`
+
+If either fails: **BLOCK** — fix the errors before proceeding. Do NOT continue to Gate 4 with failing checks.
 
 ---
 

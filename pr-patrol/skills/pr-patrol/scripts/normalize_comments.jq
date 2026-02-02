@@ -9,11 +9,13 @@ include "bot-detection";
 # Sanitize control characters that crash jq
 def sanitize: gsub("[\\u0000-\\u001f]"; "");
 
-# Combine arrays from both endpoints
-add |
+# Combine arrays from both endpoints (handle empty input)
+(add // []) |
 
 # Transform to normalized structure
 [.[] |
+  # Skip comments with no user data
+  select(.user != null and .user.login != null) |
   # Skip ignored bots early
   select(.user.login | is_ignored_bot | not) |
   {
@@ -28,7 +30,7 @@ add |
     line: (.line // null),
     in_reply_to_id: (.in_reply_to_id // null),
     created_at,
-    body: (.body | sanitize)
+    body: ((.body // "") | sanitize)
   }
 ] |
 

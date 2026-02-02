@@ -63,7 +63,7 @@ jq '.summary' /tmp/thread_states.json
 ```bash
 # Get comments since last push
 "$SCRIPTS/check_new_comments.sh" "$OWNER" "$REPO" "$PR"
-# Output: {"since": "...", "count": 6, "needs_review": true, "by_bot": [...]}
+# Output: {"since": "...", "summary": {"total": 6, ...}, "needs_review": true, "by_bot": [...], "actionable_count": 3}
 ```
 
 ### 5. Categorize by Severity

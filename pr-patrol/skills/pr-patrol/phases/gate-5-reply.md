@@ -115,7 +115,7 @@ Options:
 Fixed in commit {sha}: {description}
 ```
 
-**Greptile/Codex/Sentry (REACTION FIRST!):**
+**Greptile (REACTION FIRST!):**
 ```bash
 # Step 1: Add reaction
 gh api repos/{o}/{r}/pulls/comments/{id}/reactions -X POST -f content="+1"
@@ -128,10 +128,26 @@ gh api repos/{o}/{r}/pulls/{pr}/comments -X POST \
 
 > **CRITICAL**: The `@greptile-apps Fixed` prefix is required! Greptile's ML parses this to understand the fix was applied. Without it, the feedback loop is incomplete.
 
-**For Issue Comments (with @mention):**
+**Codex/Sentry (REACTION FIRST!):**
 ```bash
+# Step 1: Add reaction
+gh api repos/{o}/{r}/pulls/comments/{id}/reactions -X POST -f content="+1"
+
+# Step 2: Reply (no bot-specific @mention needed)
+gh api repos/{o}/{r}/pulls/{pr}/comments -X POST \
+  -f body="Fixed in commit {sha}: {description}" \
+  -F in_reply_to={id}
+```
+
+**For Issue Comments (with @mention for Greptile):**
+```bash
+# Greptile issue comment (needs @mention since no threading)
 gh api repos/{o}/{r}/issues/{pr}/comments -X POST \
   -f body="@greptile-apps Fixed in commit {sha}. Thanks for catching the UUID vs text code mismatch!"
+
+# Codex/Sentry issue comment
+gh api repos/{o}/{r}/issues/{pr}/comments -X POST \
+  -f body="Fixed in commit {sha}: {description}"
 ```
 
 ### For False Positives
@@ -141,7 +157,7 @@ gh api repos/{o}/{r}/issues/{pr}/comments -X POST \
 This is intentional: {reasoning}
 ```
 
-**Greptile/Codex/Sentry (REACTION FIRST!):**
+**Greptile (REACTION FIRST!):**
 ```bash
 # Step 1: Add thumbs DOWN reaction
 gh api repos/{o}/{r}/pulls/comments/{id}/reactions -X POST -f content="-1"
@@ -153,6 +169,17 @@ gh api repos/{o}/{r}/pulls/{pr}/comments -X POST \
 ```
 
 > **CRITICAL**: The `@greptile-apps Not fixed` prefix tells Greptile this was a false positive. Combined with 👎 reaction, this trains the model to reduce similar suggestions.
+
+**Codex/Sentry (REACTION FIRST!):**
+```bash
+# Step 1: Add thumbs DOWN reaction
+gh api repos/{o}/{r}/pulls/comments/{id}/reactions -X POST -f content="-1"
+
+# Step 2: Reply (no bot-specific @mention needed)
+gh api repos/{o}/{r}/pulls/{pr}/comments -X POST \
+  -f body="False positive: {reasoning}" \
+  -F in_reply_to={id}
+```
 
 ---
 

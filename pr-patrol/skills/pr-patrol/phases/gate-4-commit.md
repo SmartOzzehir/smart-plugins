@@ -74,8 +74,9 @@ Options:
 **CRITICAL: Only commit after explicit user approval!**
 
 ```bash
-# Stage changes
-git add -A
+# Stage only the files that were modified by pr-patrol fixes
+# IMPORTANT: Do NOT use 'git add -A' — review files individually to avoid staging secrets
+git add <specific files modified>
 
 # Commit with proper message format
 git commit -m "$(cat <<'EOF'

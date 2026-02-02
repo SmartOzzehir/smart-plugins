@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "id": 101,
+      "bot": "coderabbitai[bot]",
+      "type": "review",
+      "path": "src/auth/login.ts",
+      "line": 42,
+      "body": "[critical] SQL injection vulnerability...",
+      "state": "RESOLVED",
+      "state_reason": "Bot replied with <!-- <review_comment_addressed> -->"
+    },
+    {
+      "id": 102,
+      "bot": "greptile-apps[bot]",
+      "type": "review",
+      "path": "src/auth/login.ts",
+      "line": 15,
+      "body": "**Issue**: No rate limiting on login endpoint...",
+      "state": "NEW",
+      "state_reason": "No user reply found"
+    },
+    {
+      "id": 106,
+      "bot": "Copilot",
+      "type": "review",
+      "path": "src/config.ts",
+      "line": 8,
+      "body": "Consider extracting the timeout value...",
+      "state": "NEW",
+      "state_reason": "No user reply found"
+    },
+    {
+      "id": 200,
+      "bot": "greptile-apps[bot]",
+      "type": "issue",
+      "path": null,
+      "line": null,
+      "body": "Overall this PR introduces authentication but lacks CSRF protection...",
+      "state": "NEW",
+      "state_reason": "No user reply found"
+    }
+  ],
+  "summary": {
+    "NEW": 3,
+    "PENDING": 0,
+    "RESOLVED": 1,
+    "REJECTED": 0
+  }
+}

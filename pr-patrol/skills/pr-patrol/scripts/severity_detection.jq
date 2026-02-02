@@ -14,7 +14,7 @@
 
 # Severity detection function
 def detect_severity:
-  .body as $body | .bot as $bot |
+  (.body // "") as $body | (.bot // "") as $bot |
   if $bot == "coderabbitai" or $bot == "coderabbitai[bot]" or $bot == "CodeRabbit" then
     if ($body | test("\\[critical\\]|🔴"; "i")) then "critical"
     elif ($body | test("\\[major\\]|🟠"; "i")) then "high"
@@ -22,22 +22,22 @@ def detect_severity:
     elif ($body | test("_🧹 Nitpick_|nitpick"; "i")) then "low"
     else "medium" end
   elif $bot == "greptile" or $bot == "greptile[bot]" or $bot == "greptile-apps[bot]" then
-    if ($body | test("P0|Critical"; "i")) then "critical"
-    elif ($body | test("P1|High"; "i")) then "high"
-    elif ($body | test("P2|Medium"; "i")) then "medium"
-    elif ($body | test("P3|Low"; "i")) then "low"
+    if ($body | test("\\bP0\\b|\\bCritical\\b"; "i")) then "critical"
+    elif ($body | test("\\bP1\\b|\\bHigh\\b"; "i")) then "high"
+    elif ($body | test("\\bP2\\b|\\bMedium\\b"; "i")) then "medium"
+    elif ($body | test("\\bP3\\b|\\bLow\\b"; "i")) then "low"
     else "medium" end
-  elif $bot == "codex" or $bot == "codex-ai[bot]" then
-    if ($body | test("🔴 Critical"; "i")) then "critical"
-    elif ($body | test("🟠 Moderate"; "i")) then "high"
-    elif ($body | test("🟡 Minor"; "i")) then "medium"
-    elif ($body | test("💭 Nitpick"; "i")) then "low"
+  elif $bot == "codex" or $bot == "codex-ai[bot]" or $bot == "chatgpt-codex-connector[bot]" then
+    if ($body | test("🔴\\s*Critical"; "i")) then "critical"
+    elif ($body | test("🟠\\s*Moderate"; "i")) then "high"
+    elif ($body | test("🟡\\s*Minor"; "i")) then "medium"
+    elif ($body | test("💭\\s*Nitpick"; "i")) then "low"
     else "medium" end
   elif $bot == "sentry" or $bot == "sentry[bot]" then
-    if ($body | test("CRITICAL"; "")) then "critical"
-    elif ($body | test("HIGH"; "")) then "high"
-    elif ($body | test("MEDIUM"; "")) then "medium"
-    elif ($body | test("LOW"; "")) then "low"
+    if ($body | test("\\bCRITICAL\\b")) then "critical"
+    elif ($body | test("\\bHIGH\\b")) then "high"
+    elif ($body | test("\\bMEDIUM\\b")) then "medium"
+    elif ($body | test("\\bLOW\\b")) then "low"
     else "medium" end
   elif $bot == "Copilot" or $bot == "copilot" then
     "medium"  # Copilot has no severity markers
@@ -45,7 +45,8 @@ def detect_severity:
     "medium"  # Default for unknown bots
   end;
 
-# Apply to all comments and add severity counts
+# Ensure .comments exists, then apply severity and add counts
+(.comments //= []) |
 .comments |= map(. + {severity: detect_severity}) |
 .severity_counts = {
   critical: [.comments[] | select(.severity == "critical")] | length,

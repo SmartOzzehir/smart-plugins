@@ -142,6 +142,16 @@ gh api repos/{o}/{r}/pulls/{pr}/comments \
 
 Or free-form analysis text.
 
+### @mention Keywords (REQUIRED for ML Training)
+
+Greptile parses `@greptile-apps` mentions with specific keywords:
+
+| Keyword | Meaning | When to Use |
+|---------|---------|-------------|
+| `@greptile-apps Fixed` | Issue was valid, fix applied | After fixing a real issue |
+| `@greptile-apps Not fixed` | False positive, no change made | When rejecting a suggestion |
+| `@greptile-apps Acknowledged` | Noted, will address later | For deferred items |
+
 ### Response Protocol
 
 **CRITICAL:** Reaction MUST come before reply!
@@ -152,10 +162,10 @@ Or free-form analysis text.
 # Step 1: Add reaction (REQUIRED FIRST)
 gh api repos/{o}/{r}/pulls/comments/{id}/reactions -X POST -f content="+1"
 
-# Step 2: THEN reply (threaded via in_reply_to)
+# Step 2: THEN reply with @mention keyword (threaded via in_reply_to)
 gh api repos/{o}/{r}/pulls/{pr}/comments \
   -X POST \
-  -f body="Fixed in commit {sha}" \
+  -f body="@greptile-apps Fixed - {description}" \
   -F in_reply_to={id}
 ```
 
@@ -167,10 +177,10 @@ GitHub issue comments **don't support threading**. You MUST use @mention:
 # Step 1: Add reaction
 gh api repos/{o}/{r}/issues/comments/{id}/reactions -X POST -f content="+1"
 
-# Step 2: Reply with @mention (creates new comment, links via mention)
+# Step 2: Reply with @mention keyword (creates new comment, links via mention)
 gh api repos/{o}/{r}/issues/{pr}/comments \
   -X POST \
-  -f body="@greptile-apps Fixed in commit {sha}. Thanks for catching the UUID vs text code mismatch!"
+  -f body="@greptile-apps Fixed - {description}. Fixed in commit {sha}."
 ```
 
 **How to detect comment type:**
@@ -317,11 +327,7 @@ Extended analysis and code references...
 
 ### Severity Extraction
 
-Parse from `<sub>` tag:
-```bash
-# Extract severity from Sentry comment
-echo "$COMMENT_BODY" | grep -oP '(?<=<sub>Severity: )[A-Z]+(?=</sub>)'
-```
+Severity is already detected by `severity_detection.jq`. For manual extraction, parse the `<sub>Severity: LEVEL</sub>` tag from the comment body.
 
 ### Response Protocol
 

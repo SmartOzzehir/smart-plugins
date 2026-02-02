@@ -38,42 +38,44 @@ def is_rejected:
     # Greptile rejection patterns
     test("issue remains|still see the problem|not quite right"; "i") or
     # Question patterns (asking for clarification = not resolved)
-    (test("\\?$") and test("Could you|Can you|Would you|Have you|Did you"; "i"))
+    (test("\\?\\s*$") and test("Could you|Can you|Would you|Have you|Did you"; "i"))
   );
 
 # ACKNOWLEDGMENT markers - bot acknowledging our reply (not a new issue)
 # Used to filter out bot responses that are just "thanks" not new feedback
 def is_acknowledgment:
   . and (
-    # Short acknowledgment phrases
-    test("^(thanks|thank you|got it|acknowledged|understood|okay|ok|👍)!?$"; "i") or
+    # Short acknowledgment phrases (allow leading/trailing whitespace)
+    test("^\\s*(thanks|thank you|got it|acknowledged|understood|okay|ok|👍)!?\\s*$"; "i") or
     # Greptile typical ack: "Thanks for the fix!"
-    test("^thanks for (the )?(fix|update|change|feedback|clarification)"; "i") or
-    # Very short responses are likely acks
-    (length < 50 and test("thanks|good|great|perfect"; "i"))
+    test("^\\s*thanks for (the )?(fix|update|change|feedback|clarification)"; "i") or
+    # Very short responses that start with thanks/acknowledgment words
+    (length < 80 and test("^\\s*(thanks|thank you|great|good|perfect|awesome|noted)"; "i"))
   );
 
 # Build lookup maps for efficient access
 # IMPORTANT: Filter out null in_reply_to_id BEFORE grouping to avoid null key error
 (
-  [.user_replies[] | select(.in_reply_to_id)] |
+  [(.user_replies // [])[] | select(.in_reply_to_id)] |
   group_by(.in_reply_to_id) |
   map({key: (.[0].in_reply_to_id | tostring), value: .}) |
   from_entries
 ) as $user_map |
 
 (
-  [.bot_responses[] | select(.in_reply_to_id)] |
-  map({key: (.in_reply_to_id | tostring), value: .}) |
+  [(.bot_responses // [])[] | select(.in_reply_to_id)] |
+  group_by(.in_reply_to_id) |
+  map({key: (.[0].in_reply_to_id | tostring), value: .}) |
   from_entries
 ) as $bot_map |
 
 # Process each bot comment
-[.bot_comments[] |
+[(.bot_comments // [])[] |
   (.id | tostring) as $id_str |
   ($user_map | has($id_str)) as $has_user |
   ($bot_map | has($id_str)) as $has_bot |
-  (if $has_bot then $bot_map[$id_str].body else "" end) as $bot_body |
+  # Use the latest bot response (last in array, sorted by creation order)
+  (if $has_bot then ($bot_map[$id_str] | last).body else "" end) as $bot_body |
   {
     id,
     bot,
@@ -92,7 +94,7 @@ def is_acknowledgment:
       else "PENDING"
       end
     ),
-    bot_response: (if $has_bot then $bot_map[$id_str].body else null end)
+    bot_response: (if $has_bot then ($bot_map[$id_str] | last).body else null end)
   }
 ] |
 

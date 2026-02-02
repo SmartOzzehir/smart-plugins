@@ -44,7 +44,7 @@ fi
 # This prevents injection attacks from malicious field/value content
 # Note: We use | as delimiter, so it must also be escaped
 escape_sed() {
-  printf '%s\n' "$1" | sed 's/[&/\|]/\\&/g'
+  printf '%s\n' "$1" | sed 's/[&/\|$]/\\&/g'
 }
 
 ESCAPED_FIELD=$(escape_sed "$FIELD")
@@ -71,13 +71,16 @@ sed_inplace() {
   fi
 }
 
+# Cleanup temp files on unexpected exit
+trap 'rm -f "${STATE_FILE}.tmp.$$"' EXIT INT TERM
+
 # Check if field exists in frontmatter
-if grep -q "^${FIELD}:" "$STATE_FILE"; then
+if awk -v field="$FIELD" 'index($0, field ":") == 1 { found=1; exit } END { exit !found }' "$STATE_FILE"; then
   # Update existing field
   sed_inplace "$STATE_FILE" "s|^${ESCAPED_FIELD}:.*|${FIELD}: ${ESCAPED_VALUE}|"
 
   # Verify the change was made
-  if ! grep -q "^${FIELD}:" "$STATE_FILE"; then
+  if ! awk -v field="$FIELD" 'index($0, field ":") == 1 { found=1; exit } END { exit !found }' "$STATE_FILE"; then
     echo "Error: Failed to update field '$FIELD'" >&2
     exit 1
   fi
@@ -86,13 +89,14 @@ else
   # Add new field before the closing ---
   # Using awk for better portability and safety
   tmp_file="${STATE_FILE}.tmp.$$"
-  awk -v field="$FIELD" -v value="$VALUE" '
-    /^---$/ && seen_first {
-      print field ": " value
+  FIELD="$FIELD" VALUE="$VALUE" awk '
+    /^---$/ && seen_first && !done_insert {
+      print ENVIRON["FIELD"] ": " ENVIRON["VALUE"]
+      done_insert = 1
       print
       next
     }
-    /^---$/ { seen_first = 1 }
+    /^---$/ && !seen_first { seen_first = 1 }
     { print }
   ' "$STATE_FILE" > "$tmp_file"
 
@@ -111,7 +115,7 @@ if [[ "$FIELD" != "last_updated" ]]; then
   TIMESTAMP=$($DATE_CMD -Iseconds)
   ESCAPED_TIMESTAMP=$(escape_sed "$TIMESTAMP")
 
-  if grep -q "^last_updated:" "$STATE_FILE"; then
+  if awk '/^last_updated:/ { found=1; exit } END { exit !found }' "$STATE_FILE"; then
     sed_inplace "$STATE_FILE" "s|^last_updated:.*|last_updated: ${ESCAPED_TIMESTAMP}|"
     echo "Updated: last_updated: ${TIMESTAMP}"
   fi

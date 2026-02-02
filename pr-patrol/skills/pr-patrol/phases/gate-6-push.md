@@ -155,7 +155,7 @@ LAST_PUSH=$(grep "^last_push_at:" "$STATE" | cut -d' ' -f2)
 3. Filters by timestamp (UTC normalized)
 4. Returns accurate count and details
 
-**If script says `"count": 3` → There ARE 3 new comments. Period. Move on!**
+**If script says `"actionable_count": 3` → There ARE 3 actionable comments. Period. Move on!**
 
 ---
 
@@ -200,17 +200,17 @@ The `check_new_comments.sh` script now categorizes bot responses:
 
 ## MANDATORY AskUserQuestion (New Comments)
 
-**If `count > 0`:**
+**If `actionable_count > 0`:**
 ```
 Header: "New Comments"
-Question: "Found {count} new bot comments since push ({by_bot summary}). Start Cycle {N+1}?"
+Question: "Found {actionable_count} actionable bot comments since push ({by_bot summary}). Start Cycle {N+1}?"
 Options:
 ├── "Yes, start Cycle {N+1}"
 ├── "Show comment details first"
 ├── "Done for now"
 ```
 
-**If `count == 0`:**
+**If `actionable_count == 0`:**
 ```
 Header: "Complete"
 Question: "No new bot comments found. Workflow complete!"

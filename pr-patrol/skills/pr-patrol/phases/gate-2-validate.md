@@ -23,14 +23,9 @@ CodeRabbit embeds some comments in the walkthrough (issue comment) due to GitHub
 | Additional comments | `🔇` | Comments outside the diff range |
 | Nitpick comments | `🧹` | Minor style suggestions (sometimes embedded) |
 
-**These MUST be validated too!** Use the extracted embedded comments from Gate 1.
+**These MUST be validated too!** They were already merged into `/tmp/all_comments.json` during Gate 1 step 6.
 
-If embedded comments were extracted to `/tmp/embedded_comments.json`, include them:
-
-```bash
-# Merge inline + embedded for validation
-jq -s '.[0].comments + .[1].comments' /tmp/all_comments.json /tmp/embedded_comments.json
-```
+No additional merge needed — just validate all comments from `/tmp/all_comments.json`.
 
 ---
 
@@ -38,57 +33,31 @@ jq -s '.[0].comments + .[1].comments' /tmp/all_comments.json /tmp/embedded_comme
 
 **DO NOT manually read files and validate comments.**
 
-Launch `bot-comment-validator` agents in parallel:
+Launch `bot-comment-validator` agents via the Task tool.
 
-```xml
-<Task>
-  <subagent_type>bot-comment-validator</subagent_type>
-  <description>Validate comment #123456</description>
-  <prompt>
-Validate this PR bot comment against the actual code:
+For each comment (or batch of comments on the same file), call the Task tool with:
+- **subagent_type:** `bot-comment-validator`
+- **description:** `Validate comment #{id}` (or `Validate {N} comments on {file}`)
+- **prompt:** Include comment ID, bot name, file path, line number, and comment body. Ask the agent to read the file and return a JSON verdict:
 
-Comment ID: 123456
-Bot: coderabbitai[bot]
-File: src/components/customers/customer-list.tsx
-Line: 246
-Comment: "getRegionLabel is called with customer.region but expects UUID..."
-
-Read the file and determine:
-- Is this a REAL issue or FALSE POSITIVE?
-- Confidence level (high/medium/low)
-- Reasoning for your verdict
-- Suggested fix if real issue
-
-Return JSON:
+```json
 {
   "comment_id": 123456,
-  "verdict": "VALID" | "FALSE_POSITIVE" | "NEEDS_CLARIFICATION",
+  "verdict": "VALID | FALSE_POSITIVE | NEEDS_CLARIFICATION",
   "confidence": 0.85,
   "reasoning": "...",
-  "suggested_fix": "..." (if VALID)
+  "suggested_fix": "..."
 }
-  </prompt>
-</Task>
 ```
 
-### Batch Validation (Recommended)
+### Batch and Parallel Validation (Recommended)
 
-For efficiency, group comments by file and validate in batches:
+Group comments by file and validate in batches for efficiency. Launch multiple Task calls in a single message for parallel execution:
 
 ```
-File A (3 comments) → Single agent call with all 3
-File B (2 comments) → Single agent call with all 2
-```
-
-### Parallel Validation
-
-Launch multiple Task calls in a single message for parallelism:
-
-```xml
-<!-- All in one message for parallel execution -->
-<Task subagent_type="bot-comment-validator" description="Validate comment #111">...</Task>
-<Task subagent_type="bot-comment-validator" description="Validate comment #222">...</Task>
-<Task subagent_type="bot-comment-validator" description="Validate comment #333">...</Task>
+File A (3 comments) → 1 Task call with all 3 comments
+File B (2 comments) → 1 Task call with all 2 comments
+→ Both Task calls in one message = parallel execution
 ```
 
 ---

@@ -18,13 +18,13 @@ if [[ -z "$COMMAND" ]]; then
   exit 0
 fi
 
-if echo "$COMMAND" | grep -qE 'git\s+push.*(-f\b|--force\b|--force-with-lease\b)'; then
+if echo "$COMMAND" | grep -qE 'git[[:space:]]+push.*(-f([[:space:]]|$)|--force([[:space:]]|$)|--force-with-lease([[:space:]]|$))'; then
   echo "BLOCKED: Force push is prohibited by pr-patrol safety hook." >&2
   echo "Use regular 'git push' instead. If you need to force push, do it manually outside Claude Code." >&2
   exit 2
 fi
 
-if echo "$COMMAND" | grep -qE 'git\s+reset\s+--hard'; then
+if echo "$COMMAND" | grep -qE 'git[[:space:]]+reset[[:space:]]+--hard'; then
   echo "BLOCKED: Hard reset is prohibited by pr-patrol safety hook." >&2
   echo "Use 'git checkout' or 'git restore' for specific files instead." >&2
   exit 2

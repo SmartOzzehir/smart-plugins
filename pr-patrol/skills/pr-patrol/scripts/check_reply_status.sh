@@ -39,12 +39,12 @@ fi
 } | jq -s -L "$SCRIPT_DIR" '
 include "bot-detection";
 
-add |
+(add // []) |
 
 # Separate into categories
-[.[] | select(.user.login | is_ignored_bot | not)] |
+[.[] | select(.user != null and .user.login != null) | select(.user.login | is_ignored_bot | not)] |
 [.[] | select(.user.type == "Bot" or (.user.login | is_review_bot)) | select(.in_reply_to_id == null)] as $bot_comments |
-[.[] | select(.user.type == "Bot" or (.user.login | is_review_bot) | not) | select(.in_reply_to_id)] as $user_replies |
+[.[] | select((.user.type == "Bot" or (.user.login | is_review_bot)) | not) | select(.in_reply_to_id)] as $user_replies |
 
 # Build replied set as object for O(1) lookup
 ($user_replies | map({key: (.in_reply_to_id | tostring), value: true}) | add // {}) as $replied_set |
